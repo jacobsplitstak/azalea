@@ -6,7 +6,7 @@
 //   - Cache-first for static assets (icon, etc.)
 // Bump CACHE_VERSION any time the cached asset list changes.
 
-const CACHE_VERSION = 'azalea-v2';
+const CACHE_VERSION = 'azalea-v3';
 const PRECACHE = [
   './',
   './index.html',
@@ -20,9 +20,25 @@ const PRECACHE = [
   './icons/apple-touch-icon.png'
 ];
 
+// Synthesized response for the rare case where both cache and network fail.
+const OFFLINE_RESPONSE = () => new Response(
+  '<!doctype html><meta charset=utf-8><title>Offline</title>' +
+  '<p style="font:14px sans-serif;padding:20px">Azalea is offline and ' +
+  'this resource hasn\'t been cached yet. Reconnect and reload.</p>',
+  { status: 503, statusText: 'Offline', headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+);
+
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_VERSION).then((cache) => cache.addAll(PRECACHE))
+    // addAll fails the whole install if any single fetch fails. Use Promise.all
+    // of individual puts so a missing/renamed asset doesn't block activation.
+    caches.open(CACHE_VERSION).then((cache) =>
+      Promise.all(PRECACHE.map(url =>
+        fetch(url, { cache: 'reload' })
+          .then(resp => resp.ok ? cache.put(url, resp) : null)
+          .catch(() => null)
+      ))
+    )
   );
   self.skipWaiting();
 });
@@ -48,31 +64,40 @@ self.addEventListener('fetch', (event) => {
   const isJson = url.pathname.endsWith('.json');
 
   if (isDoc || isJson) {
-    // Network-first for HTML / JSON
-    event.respondWith(
-      fetch(req).then((resp) => {
+    // Network-first for HTML / JSON.
+    event.respondWith((async () => {
+      try {
+        const resp = await fetch(req);
         if (resp && resp.ok) {
-          const clone = resp.clone();
-          caches.open(CACHE_VERSION).then((c) => c.put(req, clone));
+          const cache = await caches.open(CACHE_VERSION);
+          cache.put(req, resp.clone());
         }
         return resp;
-      }).catch(() =>
-        caches.match(req).then((cached) => cached || caches.match('./fertility-tracker.html'))
-      )
-    );
+      } catch (e) {
+        const cached = await caches.match(req);
+        if (cached) return cached;
+        const fallback = await caches.match('./fertility-tracker.html');
+        return fallback || OFFLINE_RESPONSE();
+      }
+    })());
     return;
   }
 
-  // Cache-first for everything else
-  event.respondWith(
-    caches.match(req).then((cached) => cached || fetch(req).then((resp) => {
+  // Cache-first for everything else.
+  event.respondWith((async () => {
+    const cached = await caches.match(req);
+    if (cached) return cached;
+    try {
+      const resp = await fetch(req);
       if (resp && resp.ok) {
-        const clone = resp.clone();
-        caches.open(CACHE_VERSION).then((c) => c.put(req, clone));
+        const cache = await caches.open(CACHE_VERSION);
+        cache.put(req, resp.clone());
       }
       return resp;
-    }).catch(() => cached))
-  );
+    } catch (e) {
+      return OFFLINE_RESPONSE();
+    }
+  })());
 });
 
 // Bring the app forward when a notification is clicked.

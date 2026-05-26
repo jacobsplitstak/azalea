@@ -698,10 +698,10 @@ input[type=time] { width: auto; padding: 6px 10px; border: 0.5px solid var(--col
           <div style="margin-bottom:14px">
             <label>Cervical mucus</label>
             <div class="mucus-grid">
-              <button class="mucus-opt" onclick="selMucus(this,'dry')"><strong>Dry / None</strong>Usually after period ends — low fertility</button>
-              <button class="mucus-opt" onclick="selMucus(this,'sticky')"><strong>Sticky / Crumbly</strong>White or yellow — low fertility</button>
-              <button class="mucus-opt" onclick="selMucus(this,'creamy')"><strong>Creamy / Lotion</strong>White and smooth — approaching fertility</button>
-              <button class="mucus-opt" onclick="selMucus(this,'eggwhite')"><strong>Egg-white / Stretchy</strong>Clear and slippery — peak fertility window</button>
+              <button class="mucus-opt" data-mucus="dry"      onclick="selMucus(this,'dry')"><strong>Dry / None</strong>Usually after period ends — low fertility</button>
+              <button class="mucus-opt" data-mucus="sticky"   onclick="selMucus(this,'sticky')"><strong>Sticky / Crumbly</strong>White or yellow — low fertility</button>
+              <button class="mucus-opt" data-mucus="creamy"   onclick="selMucus(this,'creamy')"><strong>Creamy / Lotion</strong>White and smooth — approaching fertility</button>
+              <button class="mucus-opt" data-mucus="eggwhite" onclick="selMucus(this,'eggwhite')"><strong>Egg-white / Stretchy</strong>Clear and slippery — peak fertility window</button>
             </div>
           </div>
 
@@ -717,11 +717,11 @@ input[type=time] { width: auto; padding: 6px 10px; border: 0.5px solid var(--col
           <div style="margin-bottom:14px">
             <label>Energy &amp; mood</label>
             <div style="display:flex;gap:6px;flex-wrap:wrap">
-              <button class="mode-btn" onclick="selEnergy(this,'high')">High energy</button>
-              <button class="mode-btn" onclick="selEnergy(this,'medium')">Normal</button>
-              <button class="mode-btn" onclick="selEnergy(this,'low')">Low energy</button>
-              <button class="mode-btn" onclick="selEnergy(this,'mood-up')">Good mood</button>
-              <button class="mode-btn" onclick="selEnergy(this,'mood-down')">Low mood</button>
+              <button class="mode-btn" data-energy="high"      onclick="selEnergy(this,'high')">High energy</button>
+              <button class="mode-btn" data-energy="medium"    onclick="selEnergy(this,'medium')">Normal</button>
+              <button class="mode-btn" data-energy="low"       onclick="selEnergy(this,'low')">Low energy</button>
+              <button class="mode-btn" data-energy="mood-up"   onclick="selEnergy(this,'mood-up')">Good mood</button>
+              <button class="mode-btn" data-energy="mood-down" onclick="selEnergy(this,'mood-down')">Low mood</button>
             </div>
           </div>
 
@@ -1007,9 +1007,12 @@ input[type=time] { width: auto; padding: 6px 10px; border: 0.5px solid var(--col
 const DAY = 86400000;
 const DN  = ['Su','Mo','Tu','We','Th','Fr','Sa'];
 let calYear, calMonth, editMode = 'period';
-const today = new Date();
-calYear  = today.getFullYear();
-calMonth = today.getMonth();
+
+// Returns a fresh Date for "today" so we never rely on a value frozen at
+// script load — important for sessions that stay open across midnight.
+function getToday() { return new Date(); }
+
+(() => { const t = getToday(); calYear = t.getFullYear(); calMonth = t.getMonth(); })();
 
 let loggedDays    = {};  // 'YYYY-MM-DD': 'period' | 'ovulation'
 let skippedCycles = {};  // 'YYYY-MM-DD' (cycle start): reason string
@@ -1050,11 +1053,23 @@ function loadState() {
   if (p.appPrefs)      Object.assign(appPrefs, p.appPrefs);
   if (p.hasCalculated) hasCalculated = true;
   if (p.inputs) {
-    if (p.inputs.lastPeriod) document.getElementById('lastPeriod').value = p.inputs.lastPeriod;
-    if (p.inputs.cycleLen)   document.getElementById('cycleLen').value   = p.inputs.cycleLen;
-    if (p.inputs.periodLen)  document.getElementById('periodLen').value  = p.inputs.periodLen;
-    if (p.inputs.lutealLen)  document.getElementById('lutealLen').value  = p.inputs.lutealLen;
+    // Validate / clamp on load so a tampered or older corrupted state
+    // can't poison the cycle math downstream.
+    if (typeof p.inputs.lastPeriod === 'string' && parseInputDate(p.inputs.lastPeriod)) {
+      document.getElementById('lastPeriod').value = p.inputs.lastPeriod;
+    }
+    const setNum = (id, lo, hi) => {
+      const n = parseInt(p.inputs[id], 10);
+      if (Number.isFinite(n)) document.getElementById(id).value = Math.max(lo, Math.min(hi, n));
+    };
+    setNum('cycleLen',  21, 40);
+    setNum('periodLen',  2, 10);
+    setNum('lutealLen',  8, 20);
   }
+  // Drop notification time values that don't match HH:MM so a hostile
+  // import or older bug can't slip through.
+  if (!/^([01]?\d|2[0-3]):[0-5]\d$/.test(notifPrefs.dailyLogTime)) notifPrefs.dailyLogTime = '20:00';
+  if (!/^([01]?\d|2[0-3]):[0-5]\d$/.test(notifPrefs.bbtTime))      notifPrefs.bbtTime      = '07:00';
 }
 
 function saveState() {
@@ -1072,14 +1087,20 @@ function saveState() {
   } catch (e) { console.warn('saveState failed', e); }
 }
 
-function clearAllData() {
+async function clearAllData() {
   if (!confirm('This will permanently erase all logged cycles, daily logs, inputs, and notification preferences on this device. Any CSV files you exported are NOT affected.\n\nContinue?')) return;
   try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
   try { localStorage.removeItem('azalea-notif-shown'); } catch (e) {}
-  if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-    navigator.serviceWorker.controller.postMessage('CLEAR_CACHE');
-  }
-  cancelAllNotifications().finally(() => location.reload());
+  // Delete cache storage directly from the page so we don't race the
+  // service worker against the reload that follows.
+  try {
+    if (typeof caches !== 'undefined') {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+    }
+  } catch (e) { console.warn('cache clear failed', e); }
+  try { await cancelAllNotifications(); } catch (e) {}
+  location.reload();
 }
 
 // ══════════════════════════════════════════════
@@ -1090,19 +1111,46 @@ function dKey(d) {
     String(d.getMonth()+1).padStart(2,'0') + '-' +
     String(d.getDate()).padStart(2,'0');
 }
+// Parse a YYYY-MM-DD string (from <input type="date"> or storage) as a LOCAL
+// midnight Date. `new Date("2026-05-15")` would parse as UTC and shift the
+// day in negative timezones, corrupting every downstream cycle calculation.
+function parseInputDate(s) {
+  if (!s || typeof s !== 'string') return null;
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s.trim());
+  if (!m) return null;
+  const d = new Date(+m[1], +m[2] - 1, +m[3]);
+  return isNaN(d.getTime()) ? null : d;
+}
 function parseKey(k) {
-  const [y,m,d] = k.split('-').map(Number);
-  return new Date(y, m-1, d);
+  return parseInputDate(k);
 }
 function addDays(d, n) { return new Date(d.getTime() + n * DAY); }
 function daysBetween(a, b) { return Math.round((b.getTime() - a.getTime()) / DAY); }
 function fmtDate(d) { return d.toLocaleDateString('en-US', {month:'short', day:'numeric'}); }
 function fmtDateFull(d) { return d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'}); }
+function ts0(d) { return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime(); }
+
+// Read the lastPeriod input field as a local-date object (or null).
+function getLastPeriodDate() {
+  return parseInputDate(document.getElementById('lastPeriod').value);
+}
+
+// Clamp helpers for cycle inputs. Returns null if the field is unusable.
+function readCycleInputs() {
+  const cl = parseInt(document.getElementById('cycleLen').value, 10);
+  const pl = parseInt(document.getElementById('periodLen').value, 10);
+  const ll = parseInt(document.getElementById('lutealLen').value, 10);
+  return {
+    cl: Number.isFinite(cl) ? Math.max(21, Math.min(40, cl)) : 28,
+    pl: Number.isFinite(pl) ? Math.max(2,  Math.min(10, pl)) : 5,
+    ll: Number.isFinite(ll) ? Math.max(8,  Math.min(20, ll)) : 14,
+  };
+}
 
 // ══════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════
-document.getElementById('lastPeriod').valueAsDate = today;
+document.getElementById('lastPeriod').valueAsDate = getToday();
 loadState();
 
 // ══════════════════════════════════════════════
@@ -1178,8 +1226,9 @@ function selReason(el, r) {
   document.getElementById('skip-confirm-btn').disabled = false;
 }
 function confirmSkip() {
-  const k = dKey(new Date(document.getElementById('lastPeriod').value));
-  skippedCycles[k] = currentSkipReason;
+  const lp = getLastPeriodDate();
+  if (!lp) { alert('Set a valid "first day of last period" before marking a cycle atypical.'); return; }
+  skippedCycles[dKey(lp)] = currentSkipReason;
   closeSkipModal();
   document.getElementById('skipped-indicator').style.display = 'block';
   recalcFromInputs();
@@ -1187,8 +1236,8 @@ function confirmSkip() {
   saveState();
 }
 function clearSkip() {
-  const k = dKey(new Date(document.getElementById('lastPeriod').value));
-  delete skippedCycles[k];
+  const lp = getLastPeriodDate();
+  if (lp) delete skippedCycles[dKey(lp)];
   document.getElementById('skipped-indicator').style.display = 'none';
   recalcFromInputs();
   renderHistory();
@@ -1210,14 +1259,18 @@ function selEnergy(el, v) {
   energySel = v;
 }
 function saveDailyLog() {
-  const bbt   = document.getElementById('bbt-input').value;
-  const notes = document.getElementById('notes-input').value;
-  const k = dKey(today);
+  const bbtRaw = document.getElementById('bbt-input').value;
+  const notes  = document.getElementById('notes-input').value;
+  const k = dKey(getToday());
   const entry = {};
-  if (mucusSel)     entry.mucus  = mucusSel;
-  if (bbt)          entry.bbt    = bbt;
-  if (energySel)    entry.energy = energySel;
-  if (notes)        entry.notes  = notes;
+  if (mucusSel)  entry.mucus  = mucusSel;
+  if (bbtRaw) {
+    // Only persist if it parses to a plausible body-temperature value.
+    const v = parseFloat(bbtRaw);
+    if (Number.isFinite(v) && v >= 35 && v <= 39) entry.bbt = String(v);
+  }
+  if (energySel) entry.energy = energySel;
+  if (notes)     entry.notes  = notes.trim().slice(0, 2000); // cap pathological input
   if (Object.keys(entry).length === 0) {
     delete dailyLogs[k];
   } else {
@@ -1230,17 +1283,17 @@ function saveDailyLog() {
 }
 
 function restoreTodayDailyLog() {
-  const k = dKey(today);
+  const k = dKey(getToday());
   const e = dailyLogs[k];
   if (!e) return;
   if (e.mucus) {
-    const btn = document.querySelector('.mucus-opt[onclick*="\'' + e.mucus + '\'"]');
+    const btn = document.querySelector('.mucus-opt[data-mucus="' + CSS.escape(e.mucus) + '"]');
     if (btn) { btn.classList.add('selected'); mucusSel = e.mucus; }
   }
   if (e.bbt)   document.getElementById('bbt-input').value = e.bbt;
   if (e.notes) document.getElementById('notes-input').value = e.notes;
   if (e.energy) {
-    const btn = document.querySelector('.daily-log-section .mode-btn[onclick*="\'' + e.energy + '\'"]');
+    const btn = document.querySelector('.daily-log-section .mode-btn[data-energy="' + CSS.escape(e.energy) + '"]');
     if (btn) { btn.classList.add('active-period'); energySel = e.energy; }
   }
 }
@@ -1249,7 +1302,9 @@ function restoreTodayDailyLog() {
 //  CYCLE STATS DERIVATION
 // ══════════════════════════════════════════════
 function getPeriodRuns() {
-  const keys = Object.keys(loggedDays).filter(k => loggedDays[k] === 'period').sort();
+  const keys = Object.keys(loggedDays)
+    .filter(k => loggedDays[k] === 'period' && parseKey(k))
+    .sort();
   if (!keys.length) return [];
   let runs = [], run = [keys[0]];
   for (let i = 1; i < keys.length; i++) {
@@ -1326,12 +1381,14 @@ function onInputChange() { recalcFromInputs(); renderCalendar(); saveState(); }
 // ══════════════════════════════════════════════
 //  CYCLE DATA
 // ══════════════════════════════════════════════
+// Returns the cycle dates derived from the user's inputs, or null if the
+// inputs aren't usable yet (no lastPeriod chosen). Callers must handle null.
 function getCycleData() {
-  const lp = new Date(document.getElementById('lastPeriod').value);
-  const cl = parseInt(document.getElementById('cycleLen').value) || 28;
-  const pl = parseInt(document.getElementById('periodLen').value) || 5;
-  const ll = parseInt(document.getElementById('lutealLen').value) || 14;
-  const ov = addDays(lp, cl - ll);
+  const lp = getLastPeriodDate();
+  if (!lp) return null;
+  const { cl, pl, ll } = readCycleInputs();
+  // Ovulation needs cl > ll so the day count is forward; clamp defends it.
+  const ov = addDays(lp, Math.max(1, cl - ll));
   const fwStart = addDays(ov, -5);
   const testDate = addDays(ov, 14);
   const nextPeriod = addDays(lp, cl);
@@ -1344,53 +1401,64 @@ function getCycleData() {
 function updateBanner() {
   if (!hasCalculated) return;
   const c = getCycleData();
-  const ts = d => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-  const diff = d => Math.round((ts(d) - ts(today)) / DAY);
+  if (!c) return;  // invalid inputs — leave banner in its previous state
+  // If the saved cycle is so far in the past that it predates several
+  // complete cycles, roll the reference period forward so the banner
+  // describes the current cycle instead of falling into "none".
+  const todayTs = ts0(getToday());
+  let lp = c.lp;
+  while (todayTs >= ts0(addDays(lp, c.cl))) lp = addDays(lp, c.cl);
+  const ov         = addDays(lp, Math.max(1, c.cl - c.ll));
+  const fwStart    = addDays(ov, -5);
+  const testDate   = addDays(ov, 14);
+  const nextPeriod = addDays(lp, c.cl);
+
+  const diff = d => Math.round((ts0(d) - todayTs) / DAY);
   const banner = document.getElementById('reminder-banner');
   const icon  = document.getElementById('b-icon');
   const title = document.getElementById('b-title');
   const sub   = document.getElementById('b-sub');
   const pills = document.getElementById('b-pills');
 
-  const dOv        = diff(c.ov);
-  const dFwStart   = diff(c.fwStart);
-  const dTest      = diff(c.testDate);
-  const dNextPeriod= diff(c.nextPeriod);
+  const dOv        = diff(ov);
+  const dFwStart   = diff(fwStart);
+  const dTest      = diff(testDate);
+  const dNextPeriod= diff(nextPeriod);
 
   let phase = 'none';
 
-  if (ts(today) >= ts(c.lp) && ts(today) <= ts(addDays(c.lp, c.pl-1))) {
+  if (todayTs >= ts0(lp) && todayTs <= ts0(addDays(lp, c.pl-1))) {
     phase = 'period'; icon.textContent = '🩸';
     title.textContent = 'You are currently in your period.';
-    sub.textContent = 'Your fertile window opens in ' + dFwStart + ' day' + (dFwStart===1?'':'s') + ' (' + fmtDate(c.fwStart) + ').';
-  } else if (ts(today) >= ts(c.fwStart) && ts(today) < ts(c.ov)) {
+    sub.textContent = 'Your fertile window opens in ' + dFwStart + ' day' + (dFwStart===1?'':'s') + ' (' + fmtDate(fwStart) + ').';
+  } else if (todayTs >= ts0(fwStart) && todayTs < ts0(ov)) {
     phase = 'fertile'; icon.textContent = '⭐';
     title.textContent = 'You are in your fertile window.';
-    sub.textContent = 'Ovulation expected in ' + dOv + ' day' + (dOv===1?'':'s') + ' on ' + fmtDate(c.ov) + '. One of your best days to try.';
-  } else if (ts(today) === ts(c.ov)) {
+    sub.textContent = 'Ovulation expected in ' + dOv + ' day' + (dOv===1?'':'s') + ' on ' + fmtDate(ov) + '. One of your best days to try.';
+  } else if (todayTs === ts0(ov)) {
     phase = 'ovulation'; icon.textContent = '🎯';
     title.textContent = 'Today is your estimated ovulation day.';
     sub.textContent = 'Highest-fertility day. Tonight and tomorrow are still within your fertile window.';
-  } else if (ts(today) > ts(c.ov) && ts(today) < ts(c.testDate)) {
+  } else if (todayTs > ts0(ov) && todayTs < ts0(testDate)) {
     phase = 'luteal'; icon.textContent = '🌙';
     title.textContent = 'You are in your luteal phase (the waiting phase).';
-    sub.textContent = 'Earliest pregnancy test: ' + fmtDate(c.testDate) + ' (' + dTest + ' day' + (dTest===1?'':'s') + ' away). Testing before then risks a false negative.';
-  } else if (ts(today) >= ts(c.testDate) && ts(today) < ts(c.nextPeriod)) {
+    sub.textContent = 'Earliest pregnancy test: ' + fmtDate(testDate) + ' (' + dTest + ' day' + (dTest===1?'':'s') + ' away). Testing before then risks a false negative.';
+  } else if (todayTs >= ts0(testDate) && todayTs < ts0(nextPeriod)) {
     phase = 'test'; icon.textContent = '🧪';
     title.textContent = 'You can now take a pregnancy test.';
     sub.textContent = 'hCG levels should be detectable from today. Use first-morning urine for best results.';
   } else if (dNextPeriod >= 0 && dNextPeriod <= 7) {
     phase = 'period'; icon.textContent = '📅';
     title.textContent = 'Your next period is expected in ' + dNextPeriod + ' day' + (dNextPeriod===1?'':'s') + '.';
-    sub.textContent = 'Expected ' + fmtDate(c.nextPeriod) + '. Fertile window follows ~' + (c.cl - c.ll - 5) + ' days later.';
+    sub.textContent = 'Expected ' + fmtDate(nextPeriod) + '. Fertile window follows ~' + Math.max(0, c.cl - c.ll - 5) + ' days later.';
   } else if (dFwStart > 0 && dFwStart <= 7) {
     phase = 'fertile'; icon.textContent = '⭐';
     title.textContent = 'Your fertile window is coming up in ' + dFwStart + ' day' + (dFwStart===1?'':'s') + '.';
-    sub.textContent = 'Opens ' + fmtDate(c.fwStart) + ', ovulation estimated ' + fmtDate(c.ov) + '.';
+    sub.textContent = 'Opens ' + fmtDate(fwStart) + ', ovulation estimated ' + fmtDate(ov) + '.';
   } else {
     phase = 'none'; icon.textContent = '📅';
     title.textContent = 'Tracking is active.';
-    sub.textContent = 'Next period ~' + fmtDate(c.nextPeriod) + '. Fertile window ~' + fmtDate(c.fwStart) + '–' + fmtDate(c.fwEnd) + '.';
+    sub.textContent = 'Next period ~' + fmtDate(nextPeriod) + '. Fertile window ~' + fmtDate(fwStart) + '–' + fmtDate(ov) + '.';
   }
 
   pills.innerHTML = '';
@@ -1400,10 +1468,10 @@ function updateBanner() {
     p.textContent = label;
     pills.appendChild(p);
   };
-  addPill('Fertile window: ' + fmtDate(c.fwStart) + '–' + fmtDate(c.fwEnd), 'bpill-green');
-  addPill('Ovulation: ' + fmtDate(c.ov), 'bpill-pink');
-  addPill('Pregnancy test from: ' + fmtDate(c.testDate), 'bpill-purple');
-  addPill('Next period ~' + fmtDate(c.nextPeriod), 'bpill-amber');
+  addPill('Fertile window: ' + fmtDate(fwStart) + '–' + fmtDate(ov), 'bpill-green');
+  addPill('Ovulation: ' + fmtDate(ov), 'bpill-pink');
+  addPill('Pregnancy test from: ' + fmtDate(testDate), 'bpill-purple');
+  addPill('Next period ~' + fmtDate(nextPeriod), 'bpill-amber');
   banner.className = 'reminder-banner ' + phase;
 }
 
@@ -1411,8 +1479,12 @@ function updateBanner() {
 //  CALCULATE
 // ══════════════════════════════════════════════
 function calculate() {
-  hasCalculated = true;
   const c = getCycleData();
+  if (!c) {
+    alert('Please set the first day of your last period before calculating.');
+    return;
+  }
+  hasCalculated = true;
   document.getElementById('r-ov').textContent   = fmtDate(c.ov);
   document.getElementById('r-fw').textContent   = fmtDate(c.fwStart);
   document.getElementById('r-test').textContent = fmtDate(c.testDate);
@@ -1428,7 +1500,7 @@ function calculate() {
   updateBanner();
   renderCalendar();
   saveState();
-  if (notifPrefs.enabled) scheduleAllNotifications();
+  if (notifPrefs.enabled) scheduleAllNotifications().catch(e => console.warn('schedule failed', e));
 }
 
 // ══════════════════════════════════════════════
@@ -1451,17 +1523,20 @@ function getDayType(date) {
   if (loggedDays[k]) return { type: loggedDays[k], logged: true };
   if (!hasCalculated) return null;
   const c = getCycleData();
-  const ts = d => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-  const t = ts(date);
-  for (let ci = 0; ci < 4; ci++) {
+  if (!c) return null;
+  const t = ts0(date);
+  // Iterate forward from the saved lastPeriod for up to ~2 years so the
+  // calendar shows predictions even months ahead.
+  for (let ci = 0; ci < 24; ci++) {
     const lp = addDays(c.lp, ci * c.cl);
-    const ov = addDays(lp, c.cl - c.ll);
+    if (ts0(lp) - t > c.cl * DAY) break; // we're already past the target day
+    const ov = addDays(lp, Math.max(1, c.cl - c.ll));
     const fwStart  = addDays(ov, -5);
     const testDate = addDays(ov, 14);
-    if (t >= ts(lp) && t <= ts(addDays(lp, c.pl-1))) return { type: 'period', logged: false };
-    if (t === ts(ov)) return { type: 'ovulation', logged: false };
-    if (t >= ts(fwStart) && t <= ts(ov)) return { type: 'fertile', logged: false };
-    if (t === ts(testDate)) return { type: 'test', logged: false };
+    if (t >= ts0(lp) && t <= ts0(addDays(lp, c.pl-1))) return { type: 'period', logged: false };
+    if (t === ts0(ov)) return { type: 'ovulation', logged: false };
+    if (t >= ts0(fwStart) && t <= ts0(ov)) return { type: 'fertile', logged: false };
+    if (t === ts0(testDate)) return { type: 'test', logged: false };
   }
   return null;
 }
@@ -1472,11 +1547,12 @@ function renderCalendar() {
   document.getElementById('cal-hdrs').innerHTML = DN.map(d => `<div class="cal-hdr">${d}</div>`).join('');
   const firstDay    = new Date(calYear, calMonth, 1).getDay();
   const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+  const todayKey    = dKey(getToday());
   let html = '';
   for (let i = 0; i < firstDay; i++) html += `<div class="cal-day empty"></div>`;
   for (let d = 1; d <= daysInMonth; d++) {
     const date   = new Date(calYear, calMonth, d);
-    const isToday = date.toDateString() === today.toDateString();
+    const isToday = dKey(date) === todayKey;
     const info   = getDayType(date);
     let cls = 'cal-day';
     if (isToday) cls += ' today';
@@ -1502,7 +1578,7 @@ function toggleDay(y, m, d) {
   renderHistory();
   if (hasCalculated) updateBanner();
   saveState();
-  if (notifPrefs.enabled && hasCalculated) scheduleAllNotifications();
+  if (notifPrefs.enabled && hasCalculated) scheduleAllNotifications().catch(e => console.warn('schedule failed', e));
 }
 
 function prevMonth() { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCalendar(); }
@@ -1784,6 +1860,10 @@ function importCSV(text) {
   const rows = parseCsv(text);
   const parsed = { cycleDays: {}, dailyLogs: {}, skipped: {}, inputs: {}, notif: {} };
   let section = null, headerRead = false;
+  // Whitelist mucus + energy values that round-trip cleanly with the UI.
+  const VALID_MUCUS  = new Set(['dry','sticky','creamy','eggwhite']);
+  const VALID_ENERGY = new Set(['high','medium','low','mood-up','mood-down']);
+  const isDateKey = k => typeof k === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(k) && !!parseInputDate(k);
 
   for (const row of rows) {
     const first = (row[0] || '').trim();
@@ -1796,17 +1876,20 @@ function importCSV(text) {
     }
     if (!headerRead) { headerRead = true; continue; }
 
-    if (section === 'CYCLE_DAYS' && row[0] && (row[1] === 'period' || row[1] === 'ovulation')) {
+    if (section === 'CYCLE_DAYS' && isDateKey(row[0]) && (row[1] === 'period' || row[1] === 'ovulation')) {
       parsed.cycleDays[row[0]] = row[1];
-    } else if (section === 'DAILY_LOGS' && row[0]) {
+    } else if (section === 'DAILY_LOGS' && isDateKey(row[0])) {
       const e = {};
-      if (row[1]) e.mucus  = row[1];
-      if (row[2]) e.bbt    = row[2];
-      if (row[3]) e.energy = row[3];
-      if (row[4]) e.notes  = row[4];
+      if (row[1] && VALID_MUCUS.has(row[1])) e.mucus = row[1];
+      if (row[2]) {
+        const v = parseFloat(row[2]);
+        if (Number.isFinite(v) && v >= 35 && v <= 39) e.bbt = String(v);
+      }
+      if (row[3] && VALID_ENERGY.has(row[3])) e.energy = row[3];
+      if (row[4]) e.notes = String(row[4]).slice(0, 2000);
       if (Object.keys(e).length) parsed.dailyLogs[row[0]] = e;
-    } else if (section === 'SKIPPED_CYCLES' && row[0] && row[1]) {
-      parsed.skipped[row[0]] = row[1];
+    } else if (section === 'SKIPPED_CYCLES' && isDateKey(row[0]) && row[1]) {
+      parsed.skipped[row[0]] = String(row[1]).slice(0, 100);
     } else if (section === 'INPUTS' && row[0]) {
       parsed.inputs[row[0]] = row[1] || '';
     } else if (section === 'NOTIFICATIONS' && row[0]) {
@@ -1834,10 +1917,31 @@ function importCSV(text) {
 
   Object.keys(parsed.notif).forEach(k => {
     if (!(k in notifPrefs)) return;
-    const v = parsed.notif[k];
-    if (typeof notifPrefs[k] === 'boolean') notifPrefs[k] = (v === 'true');
-    else notifPrefs[k] = v;
+    const v = String(parsed.notif[k] || '').trim();
+    if (typeof notifPrefs[k] === 'boolean') {
+      notifPrefs[k] = v.toLowerCase() === 'true';
+    } else if (k === 'dailyLogTime' || k === 'bbtTime') {
+      // Only accept HH:MM strings; reject malformed times silently.
+      if (/^([01]?\d|2[0-3]):[0-5]\d$/.test(v)) notifPrefs[k] = v;
+    } else {
+      notifPrefs[k] = v;
+    }
   });
+
+  // Validate and clamp inputs after import so a malformed file can't poison
+  // the cycle math.
+  const lpEl = document.getElementById('lastPeriod');
+  if (lpEl.value && !parseInputDate(lpEl.value)) lpEl.value = '';
+  const clEl = document.getElementById('cycleLen');
+  const plEl = document.getElementById('periodLen');
+  const llEl = document.getElementById('lutealLen');
+  const clamp = (el, lo, hi, def) => {
+    const n = parseInt(el.value, 10);
+    el.value = Number.isFinite(n) ? Math.max(lo, Math.min(hi, n)) : def;
+  };
+  clamp(clEl, 21, 40, 28);
+  clamp(plEl, 2,  10, 5);
+  clamp(llEl, 8,  20, 14);
 
   saveState();
   recalcFromInputs();
@@ -1943,15 +2047,31 @@ async function cancelAllNotifications() {
   } catch (e) {}
 }
 
-async function scheduleAllNotifications() {
+// Serialize concurrent scheduleAllNotifications calls. Without this, rapid
+// toggles or multiple calculate() calls can interleave cancelAllNotifications
+// with scheduleOne, leaving duplicate notifications scheduled.
+let _scheduleInFlight = Promise.resolve();
+function scheduleAllNotifications() {
+  _scheduleInFlight = _scheduleInFlight
+    .catch(() => {})  // never let an earlier failure block the next call
+    .then(() => _scheduleAllNotifications())
+    .catch(e => { console.warn('scheduleAllNotifications failed', e); });
+  return _scheduleInFlight;
+}
+
+async function _scheduleAllNotifications() {
   if (!notifPrefs.enabled || !hasCalculated) return;
   if (!notifSupported() || Notification.permission !== 'granted') return;
   await cancelAllNotifications();
 
   const c = getCycleData();
+  if (!c) return;
+  const today = getToday();
   const at = (date, time) => {
     const [h, m] = (time || '08:00').split(':').map(Number);
-    return new Date(date.getFullYear(), date.getMonth(), date.getDate(), h, m, 0, 0).getTime();
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate(),
+                    Number.isFinite(h) ? h : 8,
+                    Number.isFinite(m) ? m : 0, 0, 0).getTime();
   };
 
   const items = [];
@@ -1972,9 +2092,10 @@ async function scheduleAllNotifications() {
       title: 'Period expected tomorrow',
       body: 'Your next period is estimated for ' + fmtDate(c.nextPeriod) + '.' });
 
-  // Daily reminders — schedule next 7 days
+  // Daily reminders — schedule next 14 days. scheduleAllNotifications is
+  // re-run every time the app opens, so the window keeps rolling forward.
   if (notifPrefs.dailyLog) {
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i < 14; i++) {
       const d = addDays(today, i);
       const ts = at(d, notifPrefs.dailyLogTime);
       if (ts > Date.now()) items.push({ tag: 'daily-log-' + dKey(d), t: ts,
@@ -1983,7 +2104,7 @@ async function scheduleAllNotifications() {
     }
   }
   if (notifPrefs.bbt) {
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i < 14; i++) {
       const d = addDays(today, i);
       const ts = at(d, notifPrefs.bbtTime);
       if (ts > Date.now()) items.push({ tag: 'bbt-' + dKey(d), t: ts,
@@ -2082,26 +2203,32 @@ restoreTodayDailyLog();
 // If we already have a saved cycle, restore the calculated state so the
 // banner and predictions show immediately on reopening the app.
 if (hasCalculated) {
-  // Trigger a recalc + UI refresh without flagging it as a brand new calc.
   const c = getCycleData();
-  document.getElementById('r-ov').textContent   = fmtDate(c.ov);
-  document.getElementById('r-fw').textContent   = fmtDate(c.fwStart);
-  document.getElementById('r-test').textContent = fmtDate(c.testDate);
-  document.getElementById('phase-timeline').innerHTML = `
-    <div class="phase-bar ph-period"><i class="ti ti-droplet"></i><div><strong>Menstruation</strong> — ${fmtDate(c.lp)} to ${fmtDate(addDays(c.lp,c.pl-1))}</div></div>
-    <div class="phase-bar ph-follicular"><i class="ti ti-arrow-up"></i><div><strong>Follicular phase</strong> — ${fmtDate(addDays(c.lp,c.pl))} to ${fmtDate(addDays(c.fwStart,-1))}</div></div>
-    <div class="phase-bar ph-fertile"><i class="ti ti-star"></i><div><strong>Fertile window</strong> — ${fmtDate(c.fwStart)} to ${fmtDate(c.fwEnd)} <em>(best days to try)</em></div></div>
-    <div class="phase-bar ph-ovulation"><i class="ti ti-circle-dot"></i><div><strong>Ovulation day</strong> — ${fmtDate(c.ov)}</div></div>
-    <div class="phase-bar ph-luteal"><i class="ti ti-moon"></i><div><strong>Luteal phase</strong> — ${fmtDate(addDays(c.ov,1))} to ${fmtDate(addDays(c.nextPeriod,-1))}</div></div>
-    <div class="phase-bar ph-test"><i class="ti ti-test-pipe"></i><div><strong>Earliest pregnancy test</strong> — ${fmtDate(c.testDate)}</div></div>
-  `;
-  document.getElementById('results').style.display = 'block';
-  recalcFromInputs();
-  updateBanner();
-  if (Object.keys(skippedCycles).some(k => k === dKey(new Date(document.getElementById('lastPeriod').value)))) {
-    document.getElementById('skipped-indicator').style.display = 'block';
+  if (c) {
+    document.getElementById('r-ov').textContent   = fmtDate(c.ov);
+    document.getElementById('r-fw').textContent   = fmtDate(c.fwStart);
+    document.getElementById('r-test').textContent = fmtDate(c.testDate);
+    document.getElementById('phase-timeline').innerHTML = `
+      <div class="phase-bar ph-period"><i class="ti ti-droplet"></i><div><strong>Menstruation</strong> — ${fmtDate(c.lp)} to ${fmtDate(addDays(c.lp,c.pl-1))}</div></div>
+      <div class="phase-bar ph-follicular"><i class="ti ti-arrow-up"></i><div><strong>Follicular phase</strong> — ${fmtDate(addDays(c.lp,c.pl))} to ${fmtDate(addDays(c.fwStart,-1))}</div></div>
+      <div class="phase-bar ph-fertile"><i class="ti ti-star"></i><div><strong>Fertile window</strong> — ${fmtDate(c.fwStart)} to ${fmtDate(c.fwEnd)} <em>(best days to try)</em></div></div>
+      <div class="phase-bar ph-ovulation"><i class="ti ti-circle-dot"></i><div><strong>Ovulation day</strong> — ${fmtDate(c.ov)}</div></div>
+      <div class="phase-bar ph-luteal"><i class="ti ti-moon"></i><div><strong>Luteal phase</strong> — ${fmtDate(addDays(c.ov,1))} to ${fmtDate(addDays(c.nextPeriod,-1))}</div></div>
+      <div class="phase-bar ph-test"><i class="ti ti-test-pipe"></i><div><strong>Earliest pregnancy test</strong> — ${fmtDate(c.testDate)}</div></div>
+    `;
+    document.getElementById('results').style.display = 'block';
+    recalcFromInputs();
+    updateBanner();
+    const lpDate = getLastPeriodDate();
+    if (lpDate && skippedCycles[dKey(lpDate)]) {
+      document.getElementById('skipped-indicator').style.display = 'block';
+    }
+    if (notifPrefs.enabled) scheduleAllNotifications();
+  } else {
+    // Saved hasCalculated but lastPeriod is now blank/invalid — fall back
+    // to the pristine state so the user can re-enter inputs.
+    hasCalculated = false;
   }
-  if (notifPrefs.enabled) scheduleAllNotifications();
 }
 
 // Activate the user's preferred landing tab (last)
