@@ -2158,10 +2158,151 @@ function importCSV(text) {
 // ══════════════════════════════════════════════
 //  NOTIFICATIONS
 // ══════════════════════════════════════════════
+//
+// Two paths to deliver reminders:
+//   1. **Cloud push** (preferred) — the page subscribes to the browser's
+//      PushManager, posts its subscription + computed schedule list to the
+//      Azalea worker. A cron job on the worker sends a Web Push at the
+//      scheduled time, and the service worker's `push` handler shows the
+//      notification. This works while the app is fully closed, the browser
+//      is closed, and the phone is locked.
+//   2. **Page-bound fallback** — if PushManager isn't available (or the
+//      subscription fails), we keep the old TimestampTrigger / setTimeout
+//      path so something still fires while the app is open.
+//
+// iOS caveat: web push only works if the PWA is installed to the home
+// screen via Safari → Share → Add to Home Screen (iOS 16.4+).
+
+const PUSH_SERVER_URL  = 'https://azalea-push.jacoba1998.workers.dev';
+const VAPID_PUBLIC_KEY = 'BHxa4kHbir-hQ_kuCWJxekaz8fDCjAtunTdD91hZj9HuDlV8HuN7coL-iThTprBIWMbG6ddq-F3TAcou47TC2Ko';
+
 let pageTimeoutHandles = [];
 
 function notifSupported()        { return 'Notification' in window && 'serviceWorker' in navigator; }
 function notifTriggerSupported() { return 'showTrigger' in Notification.prototype && 'TimestampTrigger' in window; }
+function pushSupported()         { return 'PushManager' in window && 'serviceWorker' in navigator; }
+
+// Convert the base64url-encoded VAPID public key into the Uint8Array
+// format pushManager.subscribe wants.
+function vapidKeyBytes(b64u) {
+  const pad = '='.repeat((4 - (b64u.length % 4)) % 4);
+  const b64 = (b64u + pad).replace(/-/g, '+').replace(/_/g, '/');
+  const bin = atob(b64);
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+async function getPushSubscription() {
+  const reg = await navigator.serviceWorker.ready;
+  let sub = await reg.pushManager.getSubscription();
+  if (!sub) {
+    sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: vapidKeyBytes(VAPID_PUBLIC_KEY),
+    });
+  }
+  return sub;
+}
+
+function subscriptionToJson(sub) {
+  // PushSubscription.toJSON() returns { endpoint, keys: {p256dh, auth} }
+  return sub.toJSON ? sub.toJSON() : {
+    endpoint: sub.endpoint,
+    keys: {
+      p256dh: sub.getKey ? btoa(String.fromCharCode(...new Uint8Array(sub.getKey('p256dh')))) : '',
+      auth:   sub.getKey ? btoa(String.fromCharCode(...new Uint8Array(sub.getKey('auth'))))   : '',
+    },
+  };
+}
+
+async function syncSchedulesWithServer() {
+  if (!notifPrefs.enabled) return;
+  if (!pushSupported() || Notification.permission !== 'granted') return;
+  let sub;
+  try { sub = await getPushSubscription(); }
+  catch (e) { console.warn('push subscribe failed', e); return; }
+  const schedules = computeSchedules();
+  try {
+    const resp = await fetch(PUSH_SERVER_URL + '/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ subscription: subscriptionToJson(sub), schedules }),
+    });
+    if (!resp.ok) console.warn('sync /subscribe failed', resp.status);
+  } catch (e) { console.warn('sync /subscribe network error', e); }
+}
+
+async function unsubscribeFromServer() {
+  if (!pushSupported()) return;
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.getSubscription();
+    if (sub) {
+      try {
+        await fetch(PUSH_SERVER_URL + '/unsubscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ endpoint: sub.endpoint }),
+        });
+      } catch (e) {}
+      await sub.unsubscribe();
+    }
+  } catch (e) { console.warn('unsubscribe failed', e); }
+}
+
+// Compute the list of upcoming notification times from the current cycle
+// and notification prefs. Shared by both cloud push and the page-bound
+// fallback path.
+function computeSchedules() {
+  if (!hasCalculated) return [];
+  const c = getCycleData();
+  if (!c) return [];
+  const today = getToday();
+  const at = (date, time) => {
+    const [h, m] = (time || '08:00').split(':').map(Number);
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate(),
+                    Number.isFinite(h) ? h : 8,
+                    Number.isFinite(m) ? m : 0, 0, 0).getTime();
+  };
+  const items = [];
+  if (notifPrefs.fertileStart)
+    items.push({ tag: 'fertile-start', t: at(c.fwStart, '08:00'),
+      title: 'Your fertile window is open',
+      body: 'Today through ovulation are your best days to try.' });
+  if (notifPrefs.ovulation)
+    items.push({ tag: 'ovulation', t: at(c.ov, '08:00'),
+      title: 'Estimated ovulation day',
+      body: 'Highest fertility today. Consider an OPK to confirm.' });
+  if (notifPrefs.testDate)
+    items.push({ tag: 'test-date', t: at(c.testDate, '07:00'),
+      title: 'You can take a pregnancy test',
+      body: 'hCG should be detectable now. First-morning urine is most accurate.' });
+  if (notifPrefs.periodSoon)
+    items.push({ tag: 'period-soon', t: at(addDays(c.nextPeriod, -1), '08:00'),
+      title: 'Period expected tomorrow',
+      body: 'Your next period is estimated for ' + fmtDate(c.nextPeriod) + '.' });
+  // Daily reminders — 30 days forward; cloud push handles long horizons fine.
+  if (notifPrefs.dailyLog) {
+    for (let i = 0; i < 30; i++) {
+      const d = addDays(today, i);
+      const ts = at(d, notifPrefs.dailyLogTime);
+      if (ts > Date.now()) items.push({ tag: 'daily-log-' + dKey(d), t: ts,
+        title: 'Daily log reminder',
+        body: 'Take a moment to log today\'s observations.' });
+    }
+  }
+  if (notifPrefs.bbt) {
+    for (let i = 0; i < 30; i++) {
+      const d = addDays(today, i);
+      const ts = at(d, notifPrefs.bbtTime);
+      if (ts > Date.now()) items.push({ tag: 'bbt-' + dKey(d), t: ts,
+        title: 'BBT measurement reminder',
+        body: 'Take your basal body temperature before getting out of bed.' });
+    }
+  }
+  return items.filter(s => s.t > Date.now());
+}
 
 async function requestNotifPerm() {
   if (!notifSupported()) return false;
@@ -2187,10 +2328,17 @@ async function toggleMainNotif() {
     notifPrefs.enabled = true;
     saveState();
     renderNotifUI();
+    // Subscribe to cloud push immediately, even before the user calculates,
+    // so the subscription endpoint is registered. Schedule list will start
+    // empty and be populated as soon as they compute their cycle.
+    if (pushSupported()) {
+      try { await syncSchedulesWithServer(); } catch (e) {}
+    }
     if (hasCalculated) scheduleAllNotifications();
   } else {
     notifPrefs.enabled = false;
     await cancelAllNotifications();
+    await unsubscribeFromServer();
     saveState();
     renderNotifUI();
   }
@@ -2229,12 +2377,15 @@ function renderNotifUI() {
   } else if (Notification.permission !== 'granted') {
     stat.className = 'notif-status warn';
     stat.textContent = 'Permission missing. Allow notifications for this site in your browser settings.';
-  } else if (!notifTriggerSupported()) {
+  } else if (pushSupported()) {
+    stat.className = 'notif-status ok';
+    stat.innerHTML = '<i class="ti ti-check"></i> Reminders are delivered by Azalea\'s cloud service — they fire even when the app is closed, the browser is closed, or your phone is locked. On iPhone the app must be installed to the home screen.';
+  } else if (notifTriggerSupported()) {
+    stat.className = 'notif-status warn';
+    stat.innerHTML = 'Your browser supports scheduled notifications when closed, but not background push. Reminders may not always arrive.';
+  } else {
     stat.className = 'notif-status warn';
     stat.innerHTML = 'Your browser only delivers notifications while the app is open. <strong>Install the app to your home screen</strong> and open it daily for best results.';
-  } else {
-    stat.className = 'notif-status ok';
-    stat.innerHTML = '<i class="ti ti-check"></i> Scheduled reminders will fire even when the app is closed.';
   }
 }
 
@@ -2266,57 +2417,17 @@ async function _scheduleAllNotifications() {
   if (!notifSupported() || Notification.permission !== 'granted') return;
   await cancelAllNotifications();
 
-  const c = getCycleData();
-  if (!c) return;
-  const today = getToday();
-  const at = (date, time) => {
-    const [h, m] = (time || '08:00').split(':').map(Number);
-    return new Date(date.getFullYear(), date.getMonth(), date.getDate(),
-                    Number.isFinite(h) ? h : 8,
-                    Number.isFinite(m) ? m : 0, 0, 0).getTime();
-  };
-
-  const items = [];
-  if (notifPrefs.fertileStart)
-    items.push({ tag: 'fertile-start', t: at(c.fwStart, '08:00'),
-      title: 'Your fertile window is open',
-      body: 'Today through ovulation are your best days to try.' });
-  if (notifPrefs.ovulation)
-    items.push({ tag: 'ovulation', t: at(c.ov, '08:00'),
-      title: 'Estimated ovulation day',
-      body: 'Highest fertility today. Consider an OPK to confirm.' });
-  if (notifPrefs.testDate)
-    items.push({ tag: 'test-date', t: at(c.testDate, '07:00'),
-      title: 'You can take a pregnancy test',
-      body: 'hCG should be detectable now. First-morning urine is most accurate.' });
-  if (notifPrefs.periodSoon)
-    items.push({ tag: 'period-soon', t: at(addDays(c.nextPeriod, -1), '08:00'),
-      title: 'Period expected tomorrow',
-      body: 'Your next period is estimated for ' + fmtDate(c.nextPeriod) + '.' });
-
-  // Daily reminders — schedule next 14 days. scheduleAllNotifications is
-  // re-run every time the app opens, so the window keeps rolling forward.
-  if (notifPrefs.dailyLog) {
-    for (let i = 0; i < 14; i++) {
-      const d = addDays(today, i);
-      const ts = at(d, notifPrefs.dailyLogTime);
-      if (ts > Date.now()) items.push({ tag: 'daily-log-' + dKey(d), t: ts,
-        title: 'Daily log reminder',
-        body: 'Take a moment to log today\'s observations.' });
-    }
-  }
-  if (notifPrefs.bbt) {
-    for (let i = 0; i < 14; i++) {
-      const d = addDays(today, i);
-      const ts = at(d, notifPrefs.bbtTime);
-      if (ts > Date.now()) items.push({ tag: 'bbt-' + dKey(d), t: ts,
-        title: 'BBT measurement reminder',
-        body: 'Take your basal body temperature before getting out of bed.' });
-    }
+  // Preferred path: hand the full schedule list to the cloud worker so it
+  // can fire pushes even when the app is closed.
+  if (pushSupported()) {
+    await syncSchedulesWithServer();
+    return;
   }
 
+  // Fallback for browsers without PushManager: page-bound timers /
+  // TimestampTrigger. Only fires while the app is in the foreground.
+  const items = computeSchedules();
   for (const item of items) {
-    if (item.t <= Date.now()) continue;
     await scheduleOne(item);
   }
 }

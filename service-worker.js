@@ -6,7 +6,7 @@
 //   - Cache-first for static assets (icon, etc.)
 // Bump CACHE_VERSION any time the cached asset list changes.
 
-const CACHE_VERSION = 'azalea-v3';
+const CACHE_VERSION = 'azalea-v4';
 const PRECACHE = [
   './',
   './index.html',
@@ -98,6 +98,29 @@ self.addEventListener('fetch', (event) => {
       return OFFLINE_RESPONSE();
     }
   })());
+});
+
+// Push event — fired by the browser when the Azalea worker sends a Web
+// Push. Body is JSON with { title, body, tag, icon? }. Even if parsing
+// fails we still show *something* because Chrome will surface a generic
+// "site updated in the background" notification otherwise.
+self.addEventListener('push', (event) => {
+  let data = {};
+  try { data = event.data ? event.data.json() : {}; }
+  catch (e) {
+    try { data = { body: event.data.text() }; } catch (e2) {}
+  }
+  const title = data.title || 'Azalea';
+  const options = {
+    body:  data.body  || '',
+    tag:   data.tag   || 'azalea',
+    icon:  data.icon  || './icons/icon-192.png',
+    badge: './icons/icon-192.png',
+    renotify: true,
+    vibrate: [120, 60, 120],
+    data: data,
+  };
+  event.waitUntil(self.registration.showNotification(title, options));
 });
 
 // Bring the app forward when a notification is clicked.

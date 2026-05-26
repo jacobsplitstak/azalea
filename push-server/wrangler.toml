@@ -1,0 +1,25 @@
+name = "azalea-push"
+main = "src/index.js"
+compatibility_date = "2026-05-25"
+account_id = "ecebdd0071598823afe0586d3d92b31f"
+
+# Cron: every minute, walks all subscriptions and sends due notifications.
+[triggers]
+crons = ["* * * * *"]
+
+# KV namespace binding. The "id" is filled in after running:
+#   npx wrangler kv:namespace create SUBS
+# (Wrangler will print the namespace id; paste it below before deploying.)
+[[kv_namespaces]]
+binding = "SUBS"
+id = "57115c2d6547420e9190480e30e61e58"
+
+# Public values. The actual values are filled by the deploy script. Keeping
+# them as env vars (not secrets) is fine — the public key is meant to be
+# distributed to clients. The contact subject is just an admin email.
+[vars]
+VAPID_PUBLIC_KEY = "BHxa4kHbir-hQ_kuCWJxekaz8fDCjAtunTdD91hZj9HuDlV8HuN7coL-iThTprBIWMbG6ddq-F3TAcou47TC2Ko"
+VAPID_SUBJECT = "mailto:jacoba1998@gmail.com"
+
+# Secrets (do NOT put real values here — set with `wrangler secret put`):
+#   wrangler secret put VAPID_PRIVATE_KEY

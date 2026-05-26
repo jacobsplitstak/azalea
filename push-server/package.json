@@ -1,0 +1,16 @@
+{
+  "name": "azalea-push",
+  "version": "1.0.0",
+  "description": "Web Push backend for Azalea fertility tracker.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev",
+    "tail": "wrangler tail",
+    "gen-vapid": "node scripts/generate-vapid-keys.js"
+  },
+  "devDependencies": {
+    "wrangler": "^3.78.0"
+  }
+}
