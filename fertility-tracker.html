@@ -2,46 +2,150 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Fertility & Cycle Tracker</title>
+<meta name="description" content="Science-based cycle tracking for conception planning.">
+<meta name="theme-color" content="#E0327F">
+<meta name="color-scheme" content="light dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Azalea">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16.png">
+<link rel="shortcut icon" href="favicon.ico">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/tabler-icons.min.css">
 <style>
 /* ── RESET & BASE ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --color-background-primary: #ffffff;
-  --color-background-secondary: #f5f5f5;
-  --color-text-primary: #111111;
-  --color-text-secondary: #555555;
-  --color-text-tertiary: #999999;
-  --color-border-primary: #cccccc;
-  --color-border-secondary: #dddddd;
-  --color-border-tertiary: #eeeeee;
   --border-radius-sm: 6px;
   --border-radius-md: 8px;
-  --border-radius-lg: 12px;
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --accent: #D4537E;
-  --accent-dark: #993556;
+  --border-radius-lg: 14px;
+  --border-radius-xl: 18px;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+  --shadow-card: 0 1px 2px rgba(20,12,16,.04), 0 6px 18px -8px rgba(20,12,16,.06);
+  --shadow-banner: 0 2px 4px rgba(20,12,16,.04), 0 12px 28px -12px rgba(20,12,16,.10);
+}
+
+/* ── THEME: Azalea Light (default) ── */
+:root, body[data-theme="light"] {
+  --color-background-page: #FBF3F5;
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #F7EEF2;
+  --color-background-tertiary: #FBEAF0;
+  --color-text-primary: #2A1A22;
+  --color-text-secondary: #5C4A53;
+  --color-text-tertiary: #9C8B92;
+  --color-border-primary: #E5D5DC;
+  --color-border-secondary: #EFE2E7;
+  --color-border-tertiary: #F4EBEF;
+  --accent: #E0327F;
+  --accent-dark: #951142;
+  --accent-soft: #FBEAF0;
+  --accent-on: #ffffff;
+}
+
+/* ── THEME: Midnight (dark) ── */
+body[data-theme="dark"] {
+  --color-background-page: #14101A;
+  --color-background-primary: #1C1721;
+  --color-background-secondary: #251F2C;
+  --color-background-tertiary: #2E2735;
+  --color-text-primary: #F2EAF0;
+  --color-text-secondary: #B3A5B0;
+  --color-text-tertiary: #756A75;
+  --color-border-primary: #3A3340;
+  --color-border-secondary: #2E2934;
+  --color-border-tertiary: #25212A;
+  --accent: #F25EA0;
+  --accent-dark: #BE2D70;
+  --accent-soft: #3A1F31;
+  --accent-on: #14101A;
+}
+
+/* ── THEME: Lavender ── */
+body[data-theme="lavender"] {
+  --color-background-page: #F6F2FB;
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #F0E9F8;
+  --color-background-tertiary: #E7DCF4;
+  --color-text-primary: #281A3A;
+  --color-text-secondary: #5A4A6E;
+  --color-text-tertiary: #9C8DB0;
+  --color-border-primary: #D9CEEA;
+  --color-border-secondary: #E7DCF4;
+  --color-border-tertiary: #F0E9F8;
+  --accent: #7A4FBF;
+  --accent-dark: #4D2E84;
+  --accent-soft: #EFE6FA;
+  --accent-on: #ffffff;
+}
+
+/* ── THEME: Sage ── */
+body[data-theme="sage"] {
+  --color-background-page: #F1F6EF;
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #E9F1E5;
+  --color-background-tertiary: #DEEAD9;
+  --color-text-primary: #1F2A1B;
+  --color-text-secondary: #4A5C45;
+  --color-text-tertiary: #8B9C86;
+  --color-border-primary: #CFDEC8;
+  --color-border-secondary: #DEEAD9;
+  --color-border-tertiary: #E9F1E5;
+  --accent: #5D8A4E;
+  --accent-dark: #3D5E33;
+  --accent-soft: #DEEAD9;
+  --accent-on: #ffffff;
+}
+
+/* ── THEME: Auto (follows OS) ── */
+body[data-theme="auto"] {
+  --color-background-page: #FBF3F5;
+  --color-background-primary: #ffffff;
+  --color-background-secondary: #F7EEF2;
+  --color-background-tertiary: #FBEAF0;
+  --color-text-primary: #2A1A22;
+  --color-text-secondary: #5C4A53;
+  --color-text-tertiary: #9C8B92;
+  --color-border-primary: #E5D5DC;
+  --color-border-secondary: #EFE2E7;
+  --color-border-tertiary: #F4EBEF;
+  --accent: #E0327F;
+  --accent-dark: #951142;
+  --accent-soft: #FBEAF0;
+  --accent-on: #ffffff;
 }
 @media (prefers-color-scheme: dark) {
-  :root {
-    --color-background-primary: #1a1a1a;
-    --color-background-secondary: #252525;
-    --color-text-primary: #f0f0f0;
-    --color-text-secondary: #aaaaaa;
-    --color-text-tertiary: #666666;
-    --color-border-primary: #444444;
-    --color-border-secondary: #333333;
-    --color-border-tertiary: #2a2a2a;
+  body[data-theme="auto"] {
+    --color-background-page: #14101A;
+    --color-background-primary: #1C1721;
+    --color-background-secondary: #251F2C;
+    --color-background-tertiary: #2E2735;
+    --color-text-primary: #F2EAF0;
+    --color-text-secondary: #B3A5B0;
+    --color-text-tertiary: #756A75;
+    --color-border-primary: #3A3340;
+    --color-border-secondary: #2E2934;
+    --color-border-tertiary: #25212A;
+    --accent: #F25EA0;
+    --accent-dark: #BE2D70;
+    --accent-soft: #3A1F31;
+    --accent-on: #14101A;
   }
 }
 body {
   font-family: var(--font-sans);
-  background: var(--color-background-secondary);
+  background: var(--color-background-page);
   color: var(--color-text-primary);
   min-height: 100vh;
-  padding: 16px;
+  padding: 18px 16px 32px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background .25s ease;
 }
 .app-wrapper {
   max-width: 700px;
@@ -49,23 +153,37 @@ body {
 }
 .app-header {
   text-align: center;
-  padding: 20px 0 16px;
+  padding: 12px 0 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.app-header .logo {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  box-shadow: 0 4px 16px -4px rgba(224,50,127,.25), 0 1px 2px rgba(0,0,0,.05);
+  display: block;
 }
 .app-header h1 {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 600;
+  letter-spacing: -0.3px;
   color: var(--color-text-primary);
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 .app-header p {
   font-size: 13px;
   color: var(--color-text-tertiary);
+  letter-spacing: 0.1px;
 }
 .app {
   background: var(--color-background-primary);
-  border-radius: var(--border-radius-lg);
+  border-radius: var(--border-radius-xl);
   border: 0.5px solid var(--color-border-tertiary);
   overflow: hidden;
+  box-shadow: var(--shadow-card);
 }
 
 /* ── TABS ── */
@@ -74,9 +192,11 @@ body {
   border-bottom: 0.5px solid var(--color-border-tertiary);
   overflow-x: auto;
   background: var(--color-background-primary);
+  scrollbar-width: none;
 }
+.tabs::-webkit-scrollbar { display: none; }
 .tab {
-  padding: 12px 16px;
+  padding: 14px 18px;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
@@ -86,94 +206,133 @@ body {
   border-top: none;
   border-left: none;
   border-right: none;
-  transition: color .15s;
+  transition: color .15s, border-color .15s;
   white-space: nowrap;
   flex-shrink: 0;
+  font-family: var(--font-sans);
+  letter-spacing: -0.1px;
 }
-.tab.active { color: var(--color-text-primary); border-bottom: 2px solid var(--accent); }
+.tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
 .tab:hover { color: var(--color-text-primary); }
-.tab-content { padding: 16px; }
+.tab.active:hover { color: var(--accent); }
+.tab-content { padding: 20px 18px; }
 .section { display: none; }
-.section.active { display: block; }
+.section.active { display: block; animation: fadeIn .2s; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(2px); } to { opacity: 1; transform: none; } }
 
 /* ── CARDS ── */
 .card {
   background: var(--color-background-primary);
   border: 0.5px solid var(--color-border-tertiary);
   border-radius: var(--border-radius-lg);
-  padding: 1rem 1.25rem;
-  margin-bottom: .875rem;
+  padding: 16px 18px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-card);
 }
 .section-title {
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
+  letter-spacing: -.1px;
   color: var(--color-text-primary);
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
+.card > .section-title:first-child { margin-bottom: 14px; }
 
 /* ── FORM ELEMENTS ── */
-label { font-size: 13px; color: var(--color-text-secondary); display: block; margin-bottom: 4px; }
-input[type=number], input[type=date], textarea, select {
+label { font-size: 12px; color: var(--color-text-secondary); display: block; margin-bottom: 5px; font-weight: 500; letter-spacing: 0.1px; }
+input[type=number], input[type=date], input[type=text], input[type=time], textarea, select {
   width: 100%;
-  padding: 8px 10px;
-  border: 0.5px solid var(--color-border-secondary);
+  padding: 10px 12px;
+  border: 0.5px solid var(--color-border-primary);
   border-radius: var(--border-radius-md);
   font-size: 14px;
   color: var(--color-text-primary);
   background: var(--color-background-primary);
   font-family: var(--font-sans);
+  transition: border-color .15s, box-shadow .15s;
 }
-textarea { resize: vertical; min-height: 60px; }
+input[type=number]:focus, input[type=date]:focus, input[type=text]:focus, input[type=time]:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+textarea { resize: vertical; min-height: 70px; }
 
 /* ── BUTTONS ── */
 .btn {
-  padding: 8px 16px;
+  padding: 10px 18px;
   border-radius: var(--border-radius-md);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  border: 0.5px solid var(--color-border-secondary);
+  border: 0.5px solid var(--color-border-primary);
   background: var(--color-background-primary);
   color: var(--color-text-primary);
-  transition: background .15s;
+  transition: background .15s, border-color .15s, transform .05s;
   font-family: var(--font-sans);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
 }
 .btn:hover { background: var(--color-background-secondary); }
-.btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-.btn-primary:hover { background: var(--accent-dark); }
-.btn-sm { padding: 5px 11px; font-size: 12px; }
+.btn:active { transform: translateY(1px); }
+.btn-primary { background: var(--accent); color: var(--accent-on); border-color: var(--accent); box-shadow: 0 2px 6px -2px rgba(224,50,127,.30); }
+.btn-primary:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+.btn-sm { padding: 6px 13px; font-size: 12px; }
 .btn-ghost { background: none; border: none; color: var(--accent); font-size: 12px; font-weight: 500; cursor: pointer; padding: 0; text-decoration: underline; text-underline-offset: 2px; font-family: var(--font-sans); }
 .help-link { font-size: 12px; color: var(--accent); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; background: none; border: none; padding: 0; margin-left: 4px; font-family: var(--font-sans); }
-.icon-btn { background: none; border: none; cursor: pointer; color: var(--color-text-secondary); padding: 4px 7px; border-radius: var(--border-radius-md); font-family: var(--font-sans); }
+.icon-btn { background: none; border: none; cursor: pointer; color: var(--color-text-secondary); padding: 6px 9px; border-radius: var(--border-radius-md); font-family: var(--font-sans); transition: background .15s; }
 .icon-btn:hover { background: var(--color-background-secondary); color: var(--color-text-primary); }
 
 /* ── GRIDS ── */
-.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
-.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 9px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
 
 /* ── METRICS ── */
-.metric { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: .7rem .9rem; }
-.metric .val { font-size: 19px; font-weight: 500; color: var(--color-text-primary); }
-.metric .lbl { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
-.metric .sub { font-size: 10px; color: var(--color-text-tertiary); font-style: italic; margin-top: 1px; }
+.metric {
+  background: var(--color-background-secondary);
+  border-radius: var(--border-radius-md);
+  padding: 12px 14px;
+  text-align: center;
+  border: 0.5px solid var(--color-border-tertiary);
+}
+.metric .val { font-size: 20px; font-weight: 600; color: var(--color-text-primary); letter-spacing: -0.3px; line-height: 1.1; }
+.metric .lbl { font-size: 11px; color: var(--color-text-secondary); margin-top: 4px; letter-spacing: 0.1px; }
+.metric .sub { font-size: 10px; color: var(--color-text-tertiary); font-style: italic; margin-top: 2px; }
 
 /* ── REMINDER BANNER ── */
 .reminder-banner {
   border-radius: var(--border-radius-lg);
-  padding: 14px 16px;
-  margin-bottom: .875rem;
+  padding: 16px 18px;
+  margin-bottom: 14px;
   border: 0.5px solid;
+  box-shadow: var(--shadow-banner);
 }
-.reminder-banner.period  { background: #FBEAF0; border-color: #F4C0D1; }
-.reminder-banner.fertile { background: #E1F5EE; border-color: #9FE1CB; }
+.reminder-banner.period    { background: #FBEAF0; border-color: #F4C0D1; }
+.reminder-banner.fertile   { background: #E1F5EE; border-color: #9FE1CB; }
 .reminder-banner.ovulation { background: #FBEAF0; border-color: #F4C0D1; }
-.reminder-banner.test   { background: #EEEDFE; border-color: #CECBF6; }
-.reminder-banner.luteal { background: #FAEEDA; border-color: #FAC775; }
-.reminder-banner.none   { background: var(--color-background-secondary); border-color: var(--color-border-tertiary); }
-.banner-top { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
-.banner-icon { font-size: 22px; flex-shrink: 0; }
-.banner-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
-.banner-sub { font-size: 13px; color: var(--color-text-secondary); line-height: 1.55; }
+.reminder-banner.test      { background: #EEEDFE; border-color: #CECBF6; }
+.reminder-banner.luteal    { background: #FAEEDA; border-color: #FAC775; }
+.reminder-banner.none      { background: var(--color-background-secondary); border-color: var(--color-border-tertiary); }
+
+/* Each phase gets its own dark text color so the banner is readable in every theme */
+.reminder-banner.period    .banner-title, .reminder-banner.ovulation .banner-title { color: #6B1B33; }
+.reminder-banner.period    .banner-sub,   .reminder-banner.ovulation .banner-sub   { color: #993556; }
+.reminder-banner.fertile   .banner-title { color: #0A4736; }
+.reminder-banner.fertile   .banner-sub   { color: #0F6E56; }
+.reminder-banner.test      .banner-title { color: #2A2362; }
+.reminder-banner.test      .banner-sub   { color: #3C3489; }
+.reminder-banner.luteal    .banner-title { color: #5A2F00; }
+.reminder-banner.luteal    .banner-sub   { color: #854F0B; }
+.reminder-banner.none      .banner-title { color: var(--color-text-primary); }
+.reminder-banner.none      .banner-sub   { color: var(--color-text-secondary); }
+
+.banner-top { display: flex; align-items: flex-start; gap: 12px; }
+.banner-icon { font-size: 26px; flex-shrink: 0; line-height: 1; margin-top: 1px; }
+.banner-text { flex: 1; min-width: 0; }
+.banner-title { font-size: 15px; font-weight: 600; letter-spacing: -.1px; margin-bottom: 3px; line-height: 1.35; }
+.banner-sub { font-size: 13px; line-height: 1.55; }
 .banner-pills { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
 .bpill { font-size: 11px; font-weight: 500; border-radius: 20px; padding: 4px 10px; }
 .bpill-pink   { background: #FBEAF0; color: #993556; border: 0.5px solid #F4C0D1; }
@@ -185,16 +344,16 @@ textarea { resize: vertical; min-height: 60px; }
 .disclaimer {
   background: var(--color-background-secondary);
   border-radius: var(--border-radius-md);
-  padding: 8px 12px;
+  padding: 10px 14px;
   font-size: 12px;
   color: var(--color-text-secondary);
   line-height: 1.6;
-  margin-bottom: 11px;
+  margin-bottom: 14px;
   display: flex;
-  gap: 7px;
+  gap: 9px;
   align-items: flex-start;
 }
-.disclaimer i { font-size: 15px; flex-shrink: 0; color: var(--color-text-tertiary); margin-top: 1px; }
+.disclaimer i { font-size: 16px; flex-shrink: 0; color: var(--color-text-tertiary); margin-top: 1px; }
 
 /* ── SKIP CYCLE ── */
 .skip-bar {
@@ -220,14 +379,15 @@ textarea { resize: vertical; min-height: 60px; }
 .skip-reasons { display: flex; flex-direction: column; gap: 7px; margin-bottom: 16px; }
 .skip-reason { display: flex; align-items: center; gap: 9px; padding: 9px 12px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); cursor: pointer; font-size: 13px; color: var(--color-text-secondary); background: var(--color-background-primary); font-family: var(--font-sans); text-align: left; }
 .skip-reason:hover { background: var(--color-background-secondary); }
-.skip-reason.selected { border-color: var(--accent); background: #FBEAF0; color: #993556; }
+.skip-reason.selected { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-dark); }
 .skip-reason i { font-size: 16px; flex-shrink: 0; }
 .skip-footer { display: flex; gap: 8px; justify-content: flex-end; }
 .skipped-badge { display: inline-flex; align-items: center; gap: 5px; background: #FAEEDA; color: #854F0B; border: 0.5px solid #FAC775; border-radius: 20px; padding: 4px 10px; font-size: 12px; font-weight: 500; margin-top: 8px; }
 
 /* ── PHASE BARS ── */
-.phase-bar { border-radius: var(--border-radius-md); padding: 8px 12px; margin-bottom: 6px; font-size: 13px; display: flex; align-items: center; gap: 8px; }
-.phase-bar i { font-size: 15px; flex-shrink: 0; }
+.phase-bar { border-radius: var(--border-radius-md); padding: 10px 14px; margin-bottom: 7px; font-size: 13px; display: flex; align-items: center; gap: 10px; line-height: 1.45; }
+.phase-bar:last-child { margin-bottom: 0; }
+.phase-bar i { font-size: 16px; flex-shrink: 0; }
 .ph-period    { background: #FBEAF0; color: #993556; }
 .ph-follicular{ background: #E6F1FB; color: #0C447C; }
 .ph-fertile   { background: #E1F5EE; color: #0F6E56; }
@@ -276,25 +436,54 @@ textarea { resize: vertical; min-height: 60px; }
 .avg-line { font-size: 11px; color: var(--color-text-tertiary); font-style: italic; margin-top: 8px; }
 .history-empty { text-align: center; padding: 24px; color: var(--color-text-tertiary); font-size: 13px; }
 
-/* ── OPTIONAL DAILY LOG ── */
-.optional-section { border: 0.5px dashed var(--color-border-secondary); border-radius: var(--border-radius-lg); padding: 12px 16px; margin-bottom: .875rem; }
-.toggle { width: 38px; height: 22px; border-radius: 11px; background: var(--color-border-secondary); border: none; cursor: pointer; position: relative; transition: background .2s; flex-shrink: 0; }
+/* ── DAILY LOG ── */
+.daily-log-section {
+  background: var(--color-background-primary);
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-lg);
+  padding: 16px 18px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-card);
+}
+.daily-log-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.daily-log-header i { font-size: 17px; color: var(--accent); }
+.daily-log-header h3 { font-size: 14px; font-weight: 600; letter-spacing: -.1px; color: var(--color-text-primary); }
+.daily-log-section .helper { font-size: 12px; color: var(--color-text-tertiary); line-height: 1.5; margin-bottom: 14px; }
+.toggle { width: 40px; height: 23px; border-radius: 12px; background: var(--color-border-primary); border: none; cursor: pointer; position: relative; transition: background .2s; flex-shrink: 0; }
 .toggle.on { background: var(--accent); }
-.toggle::after { content: ''; position: absolute; width: 16px; height: 16px; border-radius: 50%; background: #fff; top: 3px; left: 3px; transition: left .2s; }
-.toggle.on::after { left: 19px; }
-.optional-body { display: none; margin-top: 12px; border-top: 0.5px solid var(--color-border-tertiary); padding-top: 12px; }
-.optional-body.open { display: block; }
+.toggle::after { content: ''; position: absolute; width: 17px; height: 17px; border-radius: 50%; background: #fff; top: 3px; left: 3px; transition: left .2s; box-shadow: 0 1px 2px rgba(0,0,0,.15); }
+.toggle.on::after { left: 20px; }
 .mucus-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 7px; margin-bottom: 8px; }
 .mucus-opt { padding: 8px 10px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); cursor: pointer; font-size: 12px; color: var(--color-text-secondary); background: var(--color-background-primary); text-align: left; line-height: 1.4; font-family: var(--font-sans); }
 .mucus-opt:hover { background: var(--color-background-secondary); }
-.mucus-opt.selected { border-color: var(--accent); background: #FBEAF0; color: #993556; }
+.mucus-opt.selected { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-dark); }
 .mucus-opt strong { display: block; font-size: 12px; font-weight: 500; margin-bottom: 1px; }
 .bbt-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
 .bbt-row input { flex: 1; }
 .bbt-row label { font-size: 12px; color: var(--color-text-secondary); white-space: nowrap; margin: 0; }
 
+/* ── LEARN SEARCH ── */
+.learn-search-wrap {
+  position: relative;
+  margin-bottom: 12px;
+}
+.learn-search-wrap i {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  color: var(--color-text-tertiary);
+  pointer-events: none;
+}
+.learn-search-wrap input {
+  padding-left: 36px;
+  font-size: 13px;
+}
+.learn-count { font-size: 11px; color: var(--color-text-tertiary); margin: 4px 2px 10px; }
+
 /* ── ACCORDIONS ── */
-.accordion { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; margin-bottom: 8px; }
+.accordion { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; margin-bottom: 8px; background: var(--color-background-primary); }
 .acc-hdr { padding: 10px 14px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 500; color: var(--color-text-primary); background: var(--color-background-primary); }
 .acc-hdr:hover { background: var(--color-background-secondary); }
 .acc-body { display: none; padding: 12px 14px; border-top: 0.5px solid var(--color-border-tertiary); background: var(--color-background-primary); }
@@ -305,7 +494,7 @@ textarea { resize: vertical; min-height: 60px; }
 .acc-body h4 { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin: 10px 0 3px; }
 .cat-tabs { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 12px; }
 .cat-tab { padding: 4px 11px; font-size: 12px; font-weight: 500; border-radius: 20px; cursor: pointer; border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-secondary); transition: all .15s; font-family: var(--font-sans); }
-.cat-tab.active { background: #FBEAF0; color: #993556; border-color: #F4C0D1; }
+.cat-tab.active { background: var(--accent-soft); color: var(--accent-dark); border-color: var(--accent); }
 .badge { display: inline-block; font-size: 11px; padding: 2px 7px; border-radius: 20px; font-weight: 500; margin-bottom: 6px; flex-shrink: 0; }
 .b-pink   { background: #FBEAF0; color: #993556; }
 .b-blue   { background: #E6F1FB; color: #185FA5; }
@@ -329,6 +518,64 @@ textarea { resize: vertical; min-height: 60px; }
 @keyframes flash { 0%{opacity:.3} 100%{opacity:1} }
 .stat-updated { animation: flash .4s; }
 
+/* ── SETTINGS ── */
+.notif-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.notif-row:last-child { border-bottom: none; }
+.notif-row-main { padding-bottom: 14px; border-bottom: 0.5px solid var(--color-border-tertiary); margin-bottom: 4px; }
+.notif-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+.notif-sub { font-size: 11px; color: var(--color-text-tertiary); margin-top: 1px; line-height: 1.4; }
+.notif-section-label { font-size: 10px; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: .5px; margin: 14px 0 4px; font-weight: 500; }
+.notif-status { font-size: 12px; line-height: 1.55; margin-top: 10px; padding: 8px 11px; border-radius: var(--border-radius-md); }
+.notif-status.warn { background: #FAEEDA; color: #854F0B; border: 0.5px solid #FAC775; }
+.notif-status.ok { background: #E1F5EE; color: #0F6E56; border: 0.5px solid #9FE1CB; }
+.notif-status.info { background: #E6F1FB; color: #185FA5; border: 0.5px solid #B3D4F2; }
+.time-row { display: flex; align-items: center; gap: 10px; padding: 6px 0 6px 16px; font-size: 12px; color: var(--color-text-secondary); }
+input[type=time] { width: auto; padding: 6px 10px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: 13px; color: var(--color-text-primary); background: var(--color-background-primary); font-family: var(--font-sans); }
+.action-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn-danger { color: #B0263F; border-color: #F4C0D1; background: var(--color-background-primary); }
+.btn-danger:hover { background: #FBEAF0; color: #951142; }
+/* ── THEME PICKER ── */
+.theme-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-top: 8px; }
+.theme-chip {
+  position: relative;
+  border-radius: var(--border-radius-md);
+  border: 1.5px solid var(--color-border-tertiary);
+  padding: 12px 12px 10px;
+  background: var(--color-background-primary);
+  cursor: pointer;
+  transition: border-color .15s, transform .05s;
+  text-align: left;
+  font-family: var(--font-sans);
+}
+.theme-chip:hover { border-color: var(--color-border-primary); }
+.theme-chip.active { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.theme-chip .swatches { display: flex; gap: 4px; margin-bottom: 8px; }
+.theme-chip .swatches span { width: 20px; height: 20px; border-radius: 6px; border: 0.5px solid rgba(0,0,0,.08); }
+.theme-chip .name { font-size: 12px; font-weight: 600; color: var(--color-text-primary); letter-spacing: -.1px; }
+.theme-chip .desc { font-size: 11px; color: var(--color-text-tertiary); margin-top: 1px; }
+
+/* ── LANDING TAB SELECTOR ── */
+.landing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; margin-top: 4px; }
+.landing-chip {
+  padding: 9px 10px;
+  border-radius: var(--border-radius-md);
+  border: 1.5px solid var(--color-border-tertiary);
+  background: var(--color-background-primary);
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+  transition: all .15s;
+}
+.landing-chip:hover { border-color: var(--color-border-primary); color: var(--color-text-primary); }
+.landing-chip.active { border-color: var(--accent); background: var(--accent-soft); color: var(--accent-dark); }
+.landing-chip i { font-size: 14px; }
+
 /* ── RESPONSIVE ── */
 @media (max-width: 480px) {
   body { padding: 8px; }
@@ -342,8 +589,11 @@ textarea { resize: vertical; min-height: 60px; }
 
 <div class="app-wrapper">
   <div class="app-header">
-    <h1>🌸 Fertility &amp; Cycle Tracker</h1>
-    <p>Science-based cycle tracking for conception planning</p>
+    <img class="logo" src="icon.svg" alt="Azalea" width="56" height="56">
+    <div>
+      <h1>Azalea</h1>
+      <p>Fertility &amp; cycle tracking for conception planning</p>
+    </div>
   </div>
 
   <div class="app">
@@ -352,8 +602,8 @@ textarea { resize: vertical; min-height: 60px; }
       <button class="tab active" onclick="showSec('tracker',this)">Tracker</button>
       <button class="tab" onclick="showSec('calendar',this)">Calendar</button>
       <button class="tab" onclick="showSec('history',this)">History</button>
-      <button class="tab" onclick="showSec('guide',this)">Guide</button>
-      <button class="tab" onclick="showSec('tips',this)">Best Practices</button>
+      <button class="tab" onclick="showSec('learn',this)">Learn</button>
+      <button class="tab" onclick="showSec('settings',this)">Settings</button>
     </div>
 
     <div class="tab-content">
@@ -365,7 +615,7 @@ textarea { resize: vertical; min-height: 60px; }
         <div id="reminder-banner" class="reminder-banner none">
           <div class="banner-top">
             <span class="banner-icon" id="b-icon">📅</span>
-            <div>
+            <div class="banner-text">
               <div class="banner-title" id="b-title">Enter your cycle info below to see reminders</div>
               <div class="banner-sub" id="b-sub">Your upcoming dates will appear here once you calculate your fertile window.</div>
             </div>
@@ -437,54 +687,52 @@ textarea { resize: vertical; min-height: 60px; }
           <p class="source-note" style="margin-top:7px">Fertile window = 5 days before ovulation + ovulation day (Wilcox et al., NEJM). Test date = 14 days post ovulation (ACOG, NHS).</p>
         </div>
 
-        <!-- OPTIONAL DAILY LOG -->
-        <div class="optional-section">
-          <div style="display:flex;align-items:center;justify-content:space-between">
-            <div>
-              <p style="font-size:13px;font-weight:500;color:var(--color-text-primary)">Optional: Daily symptom log</p>
-              <span style="font-size:11px;color:var(--color-text-tertiary)">Cervical mucus, BBT, energy, notes — helps improve predictions over time</span>
-            </div>
-            <button class="toggle" id="tog-daily" onclick="toggleOpt('daily',this)"></button>
+        <!-- DAILY SYMPTOM LOG (optional, always visible) -->
+        <div class="daily-log-section">
+          <div class="daily-log-header">
+            <i class="ti ti-notebook"></i>
+            <h3>Today's log</h3>
           </div>
-          <div class="optional-body" id="opt-daily">
-            <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px">Log for today. These observations improve cycle predictions and can help you spot ovulation without an OPK.</p>
+          <p class="helper">Optional observations for today. These improve predictions over time and can help you spot ovulation without an OPK.</p>
 
-            <div style="margin-bottom:10px">
-              <label style="margin-bottom:6px;font-size:12px;font-weight:500;color:var(--color-text-primary)">Cervical mucus</label>
-              <div class="mucus-grid">
-                <button class="mucus-opt" onclick="selMucus(this,'dry')"><strong>Dry / None</strong>Usually after period ends — low fertility</button>
-                <button class="mucus-opt" onclick="selMucus(this,'sticky')"><strong>Sticky / Crumbly</strong>White or yellow — low fertility</button>
-                <button class="mucus-opt" onclick="selMucus(this,'creamy')"><strong>Creamy / Lotion</strong>White and smooth — approaching fertility</button>
-                <button class="mucus-opt" onclick="selMucus(this,'eggwhite')"><strong>Egg-white / Stretchy</strong>Clear and slippery — peak fertility window</button>
-              </div>
+          <div style="margin-bottom:14px">
+            <label>Cervical mucus</label>
+            <div class="mucus-grid">
+              <button class="mucus-opt" onclick="selMucus(this,'dry')"><strong>Dry / None</strong>Usually after period ends — low fertility</button>
+              <button class="mucus-opt" onclick="selMucus(this,'sticky')"><strong>Sticky / Crumbly</strong>White or yellow — low fertility</button>
+              <button class="mucus-opt" onclick="selMucus(this,'creamy')"><strong>Creamy / Lotion</strong>White and smooth — approaching fertility</button>
+              <button class="mucus-opt" onclick="selMucus(this,'eggwhite')"><strong>Egg-white / Stretchy</strong>Clear and slippery — peak fertility window</button>
             </div>
+          </div>
 
-            <div style="margin-bottom:10px">
-              <label style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:5px;display:block">BBT (basal body temperature)</label>
-              <div class="bbt-row">
-                <input type="number" id="bbt-input" step="0.01" min="35" max="39" placeholder="e.g. 36.5">
-                <label>°C — take immediately on waking, before getting up</label>
-              </div>
-              <p style="font-size:11px;color:var(--color-text-tertiary)">A rise of 0.2–0.5°C typically confirms ovulation has occurred. Track for 2–3 cycles to spot your pattern.</p>
+          <div style="margin-bottom:14px">
+            <label for="bbt-input">BBT (basal body temperature)</label>
+            <div class="bbt-row">
+              <input type="number" id="bbt-input" step="0.01" min="35" max="39" placeholder="e.g. 36.5">
+              <span style="font-size:12px;color:var(--color-text-secondary);white-space:nowrap">°C — on waking</span>
             </div>
+            <p style="font-size:11px;color:var(--color-text-tertiary);margin-top:5px;line-height:1.5">A rise of 0.2–0.5°C typically confirms ovulation. Track 2–3 cycles to spot your pattern.</p>
+          </div>
 
-            <div style="margin-bottom:10px">
-              <label style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:5px;display:block">Energy / mood (optional)</label>
-              <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
-                <button class="mode-btn" onclick="selEnergy(this,'high')">High energy</button>
-                <button class="mode-btn" onclick="selEnergy(this,'medium')">Normal</button>
-                <button class="mode-btn" onclick="selEnergy(this,'low')">Low energy</button>
-                <button class="mode-btn" onclick="selEnergy(this,'mood-up')">Good mood</button>
-                <button class="mode-btn" onclick="selEnergy(this,'mood-down')">Low mood</button>
-              </div>
+          <div style="margin-bottom:14px">
+            <label>Energy &amp; mood</label>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <button class="mode-btn" onclick="selEnergy(this,'high')">High energy</button>
+              <button class="mode-btn" onclick="selEnergy(this,'medium')">Normal</button>
+              <button class="mode-btn" onclick="selEnergy(this,'low')">Low energy</button>
+              <button class="mode-btn" onclick="selEnergy(this,'mood-up')">Good mood</button>
+              <button class="mode-btn" onclick="selEnergy(this,'mood-down')">Low mood</button>
             </div>
+          </div>
 
-            <div>
-              <label style="font-size:12px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px;display:block">Notes</label>
-              <textarea placeholder="e.g. mild cramp on left side, positive OPK today..."></textarea>
-            </div>
-            <button class="btn btn-primary btn-sm" style="margin-top:10px" onclick="saveDailyLog()">Save today's log</button>
-            <p id="log-saved" style="display:none;font-size:12px;color:#0F6E56;margin-top:6px"><i class="ti ti-check"></i> Saved for today</p>
+          <div style="margin-bottom:12px">
+            <label for="notes-input">Notes</label>
+            <textarea id="notes-input" placeholder="e.g. mild cramp on left side, positive OPK today..."></textarea>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-primary btn-sm" onclick="saveDailyLog()"><i class="ti ti-device-floppy"></i> Save today's log</button>
+            <p id="log-saved" style="display:none;font-size:12px;color:#0F6E56;margin:0"><i class="ti ti-check"></i> Saved for today</p>
           </div>
         </div>
 
@@ -537,32 +785,182 @@ textarea { resize: vertical; min-height: 60px; }
         </div>
       </div>
 
-      <!-- ═══════════════ GUIDE ═══════════════ -->
-      <div id="guide" class="section">
-        <div class="cat-tabs">
-          <button class="cat-tab active" onclick="fGuide('all',this)">All</button>
-          <button class="cat-tab" onclick="fGuide('basics',this)">Cycle basics</button>
-          <button class="cat-tab" onclick="fGuide('menstruation',this)">Menstruation</button>
-          <button class="cat-tab" onclick="fGuide('ovulation',this)">Ovulation</button>
-          <button class="cat-tab" onclick="fGuide('opk',this)">OPKs</button>
-          <button class="cat-tab" onclick="fGuide('conception',this)">Conception</button>
-          <button class="cat-tab" onclick="fGuide('pregnancy-signs',this)">Early pregnancy</button>
+      <!-- ═══════════════ LEARN (merged Guide + Best Practices) ═══════════════ -->
+      <div id="learn" class="section">
+        <div class="learn-search-wrap">
+          <i class="ti ti-search"></i>
+          <input type="text" id="learn-search" placeholder="Search topics…" oninput="filterLearn()" autocomplete="off">
         </div>
-        <div id="guide-content"></div>
+        <div class="cat-tabs" id="learn-tabs">
+          <button class="cat-tab active" data-bucket="all" onclick="setBucket('all',this)">All</button>
+          <button class="cat-tab" data-bucket="cycle" onclick="setBucket('cycle',this)">Your cycle</button>
+          <button class="cat-tab" data-bucket="conceive" onclick="setBucket('conceive',this)">Trying to conceive</button>
+          <button class="cat-tab" data-bucket="lifestyle" onclick="setBucket('lifestyle',this)">Diet &amp; lifestyle</button>
+          <button class="cat-tab" data-bucket="male" onclick="setBucket('male',this)">Male fertility</button>
+          <button class="cat-tab" data-bucket="pregnancy" onclick="setBucket('pregnancy',this)">Early pregnancy</button>
+        </div>
+        <p class="learn-count" id="learn-count"></p>
+        <div id="learn-content"></div>
+        <p id="learn-empty" class="history-empty" style="display:none">
+          <i class="ti ti-search-off" style="font-size:28px;display:block;margin-bottom:8px;opacity:.4"></i>
+          No topics match your search.
+        </p>
       </div>
 
-      <!-- ═══════════════ BEST PRACTICES ═══════════════ -->
-      <div id="tips" class="section">
-        <div class="cat-tabs">
-          <button class="cat-tab active" onclick="fTips('all',this)">All</button>
-          <button class="cat-tab" onclick="fTips('diet',this)">Diet</button>
-          <button class="cat-tab" onclick="fTips('supplements',this)">Supplements</button>
-          <button class="cat-tab" onclick="fTips('lifestyle',this)">Lifestyle</button>
-          <button class="cat-tab" onclick="fTips('male',this)">Male fertility</button>
-          <button class="cat-tab" onclick="fTips('timing',this)">Timing</button>
+      <!-- ═══════════════ SETTINGS ═══════════════ -->
+      <div id="settings" class="section">
+
+        <!-- APP INSTALLATION -->
+        <div class="card">
+          <p class="section-title">Install on your device</p>
+          <p id="install-status" style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;margin-bottom:10px">Checking install support…</p>
+          <div id="install-btn-row" style="display:none">
+            <button class="btn btn-primary" onclick="triggerInstall()"><i class="ti ti-download"></i> Install app</button>
+          </div>
+          <p style="font-size:11px;color:var(--color-text-tertiary);line-height:1.55;margin-top:10px">Installing adds the app to your home screen, enables offline access, and lets reminders show like a native app.</p>
         </div>
-        <div id="tips-content"></div>
-      </div>
+
+        <!-- APPEARANCE / THEMES -->
+        <div class="card">
+          <p class="section-title">Appearance</p>
+          <p style="font-size:12px;color:var(--color-text-secondary);line-height:1.55;margin-bottom:10px">Pick a theme. Phase colors stay consistent for medical clarity — only the backdrop and accent change.</p>
+          <div class="theme-grid" id="theme-grid">
+            <button class="theme-chip" data-theme="auto" onclick="setTheme('auto', this)">
+              <div class="swatches"><span style="background:linear-gradient(135deg,#FBF3F5 50%,#1C1721 50%)"></span><span style="background:#E0327F"></span><span style="background:#7DA66E"></span></div>
+              <div class="name">Auto</div>
+              <div class="desc">Matches your device</div>
+            </button>
+            <button class="theme-chip" data-theme="light" onclick="setTheme('light', this)">
+              <div class="swatches"><span style="background:#FBF3F5"></span><span style="background:#E0327F"></span><span style="background:#951142"></span></div>
+              <div class="name">Azalea</div>
+              <div class="desc">Soft pink, daylight</div>
+            </button>
+            <button class="theme-chip" data-theme="dark" onclick="setTheme('dark', this)">
+              <div class="swatches"><span style="background:#14101A"></span><span style="background:#F25EA0"></span><span style="background:#BE2D70"></span></div>
+              <div class="name">Midnight</div>
+              <div class="desc">Deep plum dark mode</div>
+            </button>
+            <button class="theme-chip" data-theme="lavender" onclick="setTheme('lavender', this)">
+              <div class="swatches"><span style="background:#F6F2FB"></span><span style="background:#7A4FBF"></span><span style="background:#4D2E84"></span></div>
+              <div class="name">Lavender</div>
+              <div class="desc">Calm purples</div>
+            </button>
+            <button class="theme-chip" data-theme="sage" onclick="setTheme('sage', this)">
+              <div class="swatches"><span style="background:#F1F6EF"></span><span style="background:#5D8A4E"></span><span style="background:#3D5E33"></span></div>
+              <div class="name">Sage</div>
+              <div class="desc">Botanical greens</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- DEFAULT LANDING TAB -->
+        <div class="card">
+          <p class="section-title">When the app opens</p>
+          <p style="font-size:12px;color:var(--color-text-secondary);line-height:1.55;margin-bottom:10px">Pick which tab opens first.</p>
+          <div class="landing-grid" id="landing-grid">
+            <button class="landing-chip" data-landing="tracker"  onclick="setLanding('tracker', this)"><i class="ti ti-target"></i> Tracker</button>
+            <button class="landing-chip" data-landing="calendar" onclick="setLanding('calendar', this)"><i class="ti ti-calendar"></i> Calendar</button>
+            <button class="landing-chip" data-landing="history"  onclick="setLanding('history', this)"><i class="ti ti-history"></i> History</button>
+            <button class="landing-chip" data-landing="learn"    onclick="setLanding('learn', this)"><i class="ti ti-book-2"></i> Learn</button>
+            <button class="landing-chip" data-landing="settings" onclick="setLanding('settings', this)"><i class="ti ti-settings"></i> Settings</button>
+          </div>
+        </div>
+
+        <!-- NOTIFICATIONS -->
+        <div class="card">
+          <p class="section-title">Notifications</p>
+          <p style="font-size:12px;color:var(--color-text-secondary);line-height:1.55;margin-bottom:10px">Reminders use your most recent calculation on the Tracker tab. Re-calculate to refresh schedules.</p>
+
+          <div class="notif-row notif-row-main">
+            <div style="flex:1;min-width:0">
+              <p class="notif-title">Enable notifications</p>
+              <p class="notif-sub">Master switch — turn off to silence everything</p>
+            </div>
+            <button class="toggle" id="tog-notif-main" onclick="toggleMainNotif()"></button>
+          </div>
+
+          <p id="notif-status" class="notif-status info" style="display:none"></p>
+
+          <div id="notif-options" style="display:none">
+            <p class="notif-section-label">Cycle reminders</p>
+
+            <div class="notif-row">
+              <div style="flex:1;min-width:0">
+                <p class="notif-title">Fertile window opens</p>
+                <p class="notif-sub">Morning of the first fertile day</p>
+              </div>
+              <button class="toggle" id="tog-fertileStart" onclick="toggleNotifPref('fertileStart', this)"></button>
+            </div>
+            <div class="notif-row">
+              <div style="flex:1;min-width:0">
+                <p class="notif-title">Ovulation day</p>
+                <p class="notif-sub">Morning of estimated ovulation</p>
+              </div>
+              <button class="toggle" id="tog-ovulation" onclick="toggleNotifPref('ovulation', this)"></button>
+            </div>
+            <div class="notif-row">
+              <div style="flex:1;min-width:0">
+                <p class="notif-title">Pregnancy test eligible</p>
+                <p class="notif-sub">14 days after ovulation</p>
+              </div>
+              <button class="toggle" id="tog-testDate" onclick="toggleNotifPref('testDate', this)"></button>
+            </div>
+            <div class="notif-row">
+              <div style="flex:1;min-width:0">
+                <p class="notif-title">Period expected tomorrow</p>
+                <p class="notif-sub">Day before predicted next period</p>
+              </div>
+              <button class="toggle" id="tog-periodSoon" onclick="toggleNotifPref('periodSoon', this)"></button>
+            </div>
+
+            <p class="notif-section-label">Daily reminders</p>
+
+            <div class="notif-row">
+              <div style="flex:1;min-width:0">
+                <p class="notif-title">Daily log reminder</p>
+                <p class="notif-sub">Log mucus, mood, and notes</p>
+              </div>
+              <button class="toggle" id="tog-dailyLog" onclick="toggleNotifPref('dailyLog', this)"></button>
+            </div>
+            <div class="time-row" id="row-dailyLogTime">
+              <label for="dailyLogTime">Reminder time</label>
+              <input type="time" id="dailyLogTime" value="20:00" onchange="setNotifTime('dailyLogTime', this.value)">
+            </div>
+
+            <div class="notif-row">
+              <div style="flex:1;min-width:0">
+                <p class="notif-title">BBT measurement</p>
+                <p class="notif-sub">Take temperature before getting out of bed</p>
+              </div>
+              <button class="toggle" id="tog-bbt" onclick="toggleNotifPref('bbt', this)"></button>
+            </div>
+            <div class="time-row" id="row-bbtTime">
+              <label for="bbtTime">Reminder time</label>
+              <input type="time" id="bbtTime" value="07:00" onchange="setNotifTime('bbtTime', this.value)">
+            </div>
+          </div>
+          <p class="source-note" style="margin-top:10px">Notifications are scheduled by the app and stay on this device. Nothing is sent to a server.</p>
+        </div>
+
+        <!-- BACKUP & RESTORE -->
+        <div class="card">
+          <p class="section-title">Backup &amp; restore (CSV)</p>
+          <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;margin-bottom:12px">Your cycle data is stored only on this device. Export a CSV to back up, move to another device, or share with your doctor. Importing merges into your existing data — same-date entries are overwritten.</p>
+          <div class="action-row">
+            <button class="btn btn-primary" onclick="exportCSV()"><i class="ti ti-file-export"></i> Export CSV</button>
+            <button class="btn" onclick="document.getElementById('csv-import-input').click()"><i class="ti ti-file-import"></i> Import CSV</button>
+            <input type="file" id="csv-import-input" accept=".csv,text/csv,text/plain" style="display:none" onchange="onImportFile(event)">
+          </div>
+        </div>
+
+        <!-- RESET -->
+        <div class="card">
+          <p class="section-title">Reset</p>
+          <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;margin-bottom:10px">Erase all cycle data, daily logs, inputs, and notification preferences from this device. Export to CSV first if you might want it back.</p>
+          <button class="btn btn-danger" onclick="clearAllData()"><i class="ti ti-trash"></i> Clear all data</button>
+        </div>
+
+      </div><!-- /settings -->
 
     </div><!-- /tab-content -->
   </div><!-- /app -->
@@ -615,8 +1013,74 @@ calMonth = today.getMonth();
 
 let loggedDays    = {};  // 'YYYY-MM-DD': 'period' | 'ovulation'
 let skippedCycles = {};  // 'YYYY-MM-DD' (cycle start): reason string
+let dailyLogs     = {};  // 'YYYY-MM-DD': {mucus, bbt, energy, notes}
 let currentSkipReason = null;
 let hasCalculated = false;
+
+const STORAGE_KEY = 'azalea-fertility-v1';
+
+let notifPrefs = {
+  enabled:       false,
+  fertileStart:  true,
+  ovulation:     true,
+  testDate:      true,
+  periodSoon:    true,
+  dailyLog:      false,
+  bbt:           false,
+  dailyLogTime: '20:00',
+  bbtTime:      '07:00'
+};
+
+let appPrefs = {
+  theme:       'auto',     // 'auto' | 'light' | 'dark' | 'lavender' | 'sage'
+  landingTab:  'tracker'   // 'tracker' | 'calendar' | 'history' | 'learn' | 'settings'
+};
+
+function loadState() {
+  let raw;
+  try { raw = localStorage.getItem(STORAGE_KEY); }
+  catch (e) { console.warn('localStorage unavailable', e); return; }
+  if (!raw) return;
+  let p;
+  try { p = JSON.parse(raw); } catch (e) { console.warn('corrupt state', e); return; }
+  if (p.loggedDays)    Object.assign(loggedDays, p.loggedDays);
+  if (p.skippedCycles) Object.assign(skippedCycles, p.skippedCycles);
+  if (p.dailyLogs)     Object.assign(dailyLogs, p.dailyLogs);
+  if (p.notifPrefs)    Object.assign(notifPrefs, p.notifPrefs);
+  if (p.appPrefs)      Object.assign(appPrefs, p.appPrefs);
+  if (p.hasCalculated) hasCalculated = true;
+  if (p.inputs) {
+    if (p.inputs.lastPeriod) document.getElementById('lastPeriod').value = p.inputs.lastPeriod;
+    if (p.inputs.cycleLen)   document.getElementById('cycleLen').value   = p.inputs.cycleLen;
+    if (p.inputs.periodLen)  document.getElementById('periodLen').value  = p.inputs.periodLen;
+    if (p.inputs.lutealLen)  document.getElementById('lutealLen').value  = p.inputs.lutealLen;
+  }
+}
+
+function saveState() {
+  try {
+    const inputs = {
+      lastPeriod: document.getElementById('lastPeriod').value,
+      cycleLen:   document.getElementById('cycleLen').value,
+      periodLen:  document.getElementById('periodLen').value,
+      lutealLen:  document.getElementById('lutealLen').value
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      loggedDays, skippedCycles, dailyLogs, notifPrefs, appPrefs, inputs, hasCalculated,
+      savedAt: new Date().toISOString()
+    }));
+  } catch (e) { console.warn('saveState failed', e); }
+}
+
+function clearAllData() {
+  if (!confirm('This will permanently erase all logged cycles, daily logs, inputs, and notification preferences on this device. Any CSV files you exported are NOT affected.\n\nContinue?')) return;
+  try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+  try { localStorage.removeItem('azalea-notif-shown'); } catch (e) {}
+  if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage('CLEAR_CACHE');
+  }
+  cancelAllNotifications().finally(() => location.reload());
+}
 
 // ══════════════════════════════════════════════
 //  DATE UTILITIES
@@ -639,6 +1103,7 @@ function fmtDateFull(d) { return d.toLocaleDateString('en-US', {month:'short', d
 //  INIT
 // ══════════════════════════════════════════════
 document.getElementById('lastPeriod').valueAsDate = today;
+loadState();
 
 // ══════════════════════════════════════════════
 //  NAVIGATION
@@ -647,7 +1112,13 @@ function showSec(id, btn) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  btn.classList.add('active');
+  if (btn) {
+    btn.classList.add('active');
+  } else {
+    // Find the matching tab button by its onclick target
+    const t = [...document.querySelectorAll('.tab')].find(b => b.getAttribute('onclick')?.includes("'" + id + "'"));
+    if (t) t.classList.add('active');
+  }
   if (id === 'calendar') renderCalendar();
   if (id === 'history')  renderHistory();
 }
@@ -656,9 +1127,36 @@ function toggleHelp(id) {
   document.getElementById(id).classList.toggle('visible');
 }
 
-function toggleOpt(name, btn) {
-  btn.classList.toggle('on');
-  document.getElementById('opt-' + name).classList.toggle('open');
+// ══════════════════════════════════════════════
+//  THEME + LANDING TAB
+// ══════════════════════════════════════════════
+function applyTheme(theme) {
+  const valid = ['auto','light','dark','lavender','sage'];
+  if (!valid.includes(theme)) theme = 'auto';
+  document.body.setAttribute('data-theme', theme);
+  // Sync the theme-color meta to the resolved accent for status-bar tinting
+  const cs = getComputedStyle(document.body);
+  const accent = cs.getPropertyValue('--accent').trim() || '#E0327F';
+  let meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', accent);
+}
+
+function setTheme(theme, btn) {
+  appPrefs.theme = theme;
+  applyTheme(theme);
+  document.querySelectorAll('.theme-chip').forEach(c => c.classList.toggle('active', c.dataset.theme === theme));
+  saveState();
+}
+
+function setLanding(tab, btn) {
+  appPrefs.landingTab = tab;
+  document.querySelectorAll('.landing-chip').forEach(c => c.classList.toggle('active', c.dataset.landing === tab));
+  saveState();
+}
+
+function renderAppPrefsUI() {
+  document.querySelectorAll('.theme-chip').forEach(c => c.classList.toggle('active', c.dataset.theme === appPrefs.theme));
+  document.querySelectorAll('.landing-chip').forEach(c => c.classList.toggle('active', c.dataset.landing === appPrefs.landingTab));
 }
 
 // ══════════════════════════════════════════════
@@ -686,6 +1184,7 @@ function confirmSkip() {
   document.getElementById('skipped-indicator').style.display = 'block';
   recalcFromInputs();
   renderHistory();
+  saveState();
 }
 function clearSkip() {
   const k = dKey(new Date(document.getElementById('lastPeriod').value));
@@ -693,6 +1192,7 @@ function clearSkip() {
   document.getElementById('skipped-indicator').style.display = 'none';
   recalcFromInputs();
   renderHistory();
+  saveState();
 }
 
 // ══════════════════════════════════════════════
@@ -705,16 +1205,44 @@ function selMucus(el, v) {
   mucusSel = v;
 }
 function selEnergy(el, v) {
-  document.querySelectorAll('#opt-daily .mode-btn').forEach(x => x.classList.remove('active-period'));
+  document.querySelectorAll('.daily-log-section .mode-btn').forEach(x => x.classList.remove('active-period'));
   el.classList.add('active-period');
   energySel = v;
 }
 function saveDailyLog() {
-  // In this static HTML version, logs are held in memory only.
-  // A backend integration or localStorage can persist them in a future build.
+  const bbt   = document.getElementById('bbt-input').value;
+  const notes = document.getElementById('notes-input').value;
+  const k = dKey(today);
+  const entry = {};
+  if (mucusSel)     entry.mucus  = mucusSel;
+  if (bbt)          entry.bbt    = bbt;
+  if (energySel)    entry.energy = energySel;
+  if (notes)        entry.notes  = notes;
+  if (Object.keys(entry).length === 0) {
+    delete dailyLogs[k];
+  } else {
+    dailyLogs[k] = entry;
+  }
+  saveState();
   const saved = document.getElementById('log-saved');
   saved.style.display = 'block';
   setTimeout(() => { saved.style.display = 'none'; }, 2500);
+}
+
+function restoreTodayDailyLog() {
+  const k = dKey(today);
+  const e = dailyLogs[k];
+  if (!e) return;
+  if (e.mucus) {
+    const btn = document.querySelector('.mucus-opt[onclick*="\'' + e.mucus + '\'"]');
+    if (btn) { btn.classList.add('selected'); mucusSel = e.mucus; }
+  }
+  if (e.bbt)   document.getElementById('bbt-input').value = e.bbt;
+  if (e.notes) document.getElementById('notes-input').value = e.notes;
+  if (e.energy) {
+    const btn = document.querySelector('.daily-log-section .mode-btn[onclick*="\'' + e.energy + '\'"]');
+    if (btn) { btn.classList.add('active-period'); energySel = e.energy; }
+  }
 }
 
 // ══════════════════════════════════════════════
@@ -793,7 +1321,7 @@ function setStat(id, val, src) {
   document.getElementById(id + '-src').textContent = src;
 }
 
-function onInputChange() { recalcFromInputs(); renderCalendar(); }
+function onInputChange() { recalcFromInputs(); renderCalendar(); saveState(); }
 
 // ══════════════════════════════════════════════
 //  CYCLE DATA
@@ -899,6 +1427,8 @@ function calculate() {
   document.getElementById('results').style.display = 'block';
   updateBanner();
   renderCalendar();
+  saveState();
+  if (notifPrefs.enabled) scheduleAllNotifications();
 }
 
 // ══════════════════════════════════════════════
@@ -971,6 +1501,8 @@ function toggleDay(y, m, d) {
   renderCalendar();
   renderHistory();
   if (hasCalculated) updateBanner();
+  saveState();
+  if (notifPrefs.enabled && hasCalculated) scheduleAllNotifications();
 }
 
 function prevMonth() { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCalendar(); }
@@ -1053,44 +1585,58 @@ function renderHistory() {
 // ══════════════════════════════════════════════
 //  GUIDE & TIPS CONTENT
 // ══════════════════════════════════════════════
-const gData = [
-  {cat:'basics',b:'Cycle basics',bc:'b-blue',t:'What is a menstrual cycle?',body:`<p>Your menstrual cycle is your body's monthly process of preparing for a possible pregnancy. Day 1 is the first day of actual bleeding. The number of days from one Day 1 to the next is your cycle length. Typical is 28 days but 21–35 is normal.</p><p>Every cycle has four phases: <strong>menstruation → follicular → ovulation → luteal.</strong></p>`,src:'Sources: ACOG, Mayo Clinic, NHS'},
-  {cat:'basics',b:'Cycle basics',bc:'b-blue',t:'What is cycle length and how do I find mine?',body:`<p>Count from Day 1 of one period to the day before the next period starts. <em>Example: March 1 to March 29 = 28-day cycle.</em> Track 2–3 cycles for the most accurate average.</p>`,src:'Sources: ACOG, Cleveland Clinic, NHS'},
-  {cat:'basics',b:'Cycle basics',bc:'b-blue',t:'What is the luteal phase — in plain language?',body:`<p>After ovulation, your body enters a waiting phase where progesterone rises to prepare the uterine lining. If no pregnancy occurs, it drops and your period begins. The luteal phase is the most consistent part of your cycle — usually 12–14 days. A phase under 10 days may make implantation harder and is worth discussing with a doctor.</p>`,src:'Sources: ACOG, Cleveland Clinic, Mayo Clinic'},
-  {cat:'basics',b:'Cycle basics',bc:'b-blue',t:'The four phases, simply explained',body:`<h4>Phase 1 — Menstruation</h4><p>The uterine lining sheds. Cramping is from prostaglandins. Lasts 3–7 days.</p><h4>Phase 2 — Follicular phase</h4><p>A new egg develops. Estrogen rises and rebuilds the lining. This is the variable phase — what makes cycles longer or shorter.</p><h4>Phase 3 — Ovulation</h4><p>The egg is released and is viable for 12–24 hours. Sperm can survive up to 5 days waiting for it.</p><h4>Phase 4 — Luteal phase</h4><p>Progesterone rises to prepare the uterus. If no fertilization, it drops and the cycle resets.</p>`,src:'Sources: ACOG, Mayo Clinic, Cleveland Clinic'},
-  {cat:'menstruation',b:'Menstruation',bc:'b-pink',t:'What is a normal period?',body:`<p>Typical period: 3–7 days, 2–6 tablespoons of blood. Color ranges from bright red to dark brown — all normal. Small clots under a quarter in size are common.</p>`,src:'Sources: ACOG, Mayo Clinic, NHS'},
-  {cat:'menstruation',b:'Menstruation',bc:'b-pink',t:'Common menstrual symptoms',body:`<ul><li>Cramping (lower abdomen and back)</li><li>Bloating and water retention</li><li>Breast tenderness</li><li>Mood changes, irritability, fatigue</li><li>Headaches or migraines</li><li>Nausea</li><li>Changes in bowel habits</li></ul>`,src:'Sources: Mayo Clinic, Cleveland Clinic, ACOG'},
-  {cat:'menstruation',b:'Menstruation',bc:'b-pink',t:'PMS vs PMDD',body:`<p><strong>PMS</strong> affects up to 75% of people — symptoms appear the week before your period and resolve when bleeding starts.</p><p><strong>PMDD</strong> is more severe (3–8% of people) — significant mood disruption that interferes with daily life. A recognized condition that responds to treatment.</p>`,src:'Sources: ACOG, Cleveland Clinic, NIMH'},
-  {cat:'ovulation',b:'Ovulation',bc:'b-green',t:'Signs that you may be ovulating',body:`<ul><li><strong>Cervical mucus:</strong> clear, slippery, stretchy like egg whites at peak fertility</li><li><strong>Mild one-sided pelvic pain</strong> (Mittelschmerz)</li><li><strong>Light spotting</strong></li><li><strong>Increased libido</strong></li><li><strong>Breast tenderness</strong></li><li><strong>Slight BBT rise</strong> (0.2–0.5°C) — confirms ovulation after the fact</li><li><strong>Positive OPK</strong> — detects LH surge 24–36 hours before ovulation</li></ul>`,src:'Sources: NHS, Mayo Clinic, ACOG'},
-  {cat:'ovulation',b:'Ovulation',bc:'b-green',t:'Why calendar estimates are just a starting point',body:`<p>Calendar predictions assume ovulation happens a fixed number of days before your next period. Your actual ovulation day can shift due to stress, illness, travel, or normal variation. Pairing calendar tracking with cervical mucus observation and OPK testing gives much better accuracy.</p>`,src:'Sources: Stanford & Mikolajczyk (Human Reproduction), ACOG'},
-  {cat:'opk',b:'OPKs',bc:'b-amber',t:'What is an OPK and how does it work?',body:`<p>An OPK is a urine test that detects the LH surge that happens 24–36 hours before ovulation. Positive = test line as dark or darker than the control line. More reliable than calendar estimates alone, especially for irregular cycles.</p>`,src:'Sources: ACOG, FDA, Cleveland Clinic, NHS'},
-  {cat:'opk',b:'OPKs',bc:'b-amber',t:'How to use an OPK — step by step',body:`<div class="opk-steps"><div class="opk-step"><div class="opk-num">1</div><p><strong>When to start:</strong> 28-day cycle → day 10 or 11. Longer or irregular → start day 10.</p></div><div class="opk-step"><div class="opk-num">2</div><p><strong>Time of day:</strong> 10am–8pm. Avoid first-morning urine.</p></div><div class="opk-step"><div class="opk-num">3</div><p>Reduce fluids 1–2 hours before testing.</p></div><div class="opk-step"><div class="opk-num">4</div><p><strong>Positive:</strong> test line as dark as or darker than control. Any faint line = negative.</p></div><div class="opk-step"><div class="opk-num">5</div><p><strong>After a positive:</strong> have sex that day and the next. Ovulation is 12–36 hours away.</p></div></div>`,src:'Sources: ACOG, FDA, NHS'},
-  {cat:'opk',b:'OPKs',bc:'b-amber',t:'OPK limitations',body:`<ul><li>A positive means a surge, not confirmed ovulation. PCOS can cause surges without egg release.</li><li>Fertility medications with hCG or LH can cause false positives.</li><li>Digital OPKs (Clearblue Advanced) also track estrogen — up to 5 days advance warning.</li><li>OPKs cannot diagnose fertility problems — see a doctor if trying 12+ months (6+ months if over 35).</li></ul>`,src:'Sources: ACOG, NHS, Cleveland Clinic'},
-  {cat:'conception',b:'Conception',bc:'b-green',t:'How fertilization works',body:`<p>The egg is viable 12–24 hours after ovulation. Sperm survive up to 5 days — so having sperm waiting before the egg arrives is key. Fertilization happens in the fallopian tube; the fertilized egg implants 5–7 days later.</p>`,src:'Sources: ACOG, Mayo Clinic, Wilcox et al. NEJM 1995'},
-  {cat:'conception',b:'Conception',bc:'b-green',t:'When to take a pregnancy test',body:`<p>Tests detect hCG, produced only after implantation. Most tests detect pregnancy reliably from the day of a missed period (14 days after ovulation). Earlier testing risks false negatives. Use first-morning urine for best results.</p>`,src:'Sources: ACOG, NHS, FDA'},
-  {cat:'pregnancy-signs',b:'Early pregnancy',bc:'b-purple',t:'Common early pregnancy signs',body:`<ul><li>Missed period</li><li>Implantation bleeding — light spotting 6–12 days after conception</li><li>Breast tenderness, darkened areolas</li><li>Nausea (2–8 weeks after conception)</li><li>Fatigue, frequent urination</li><li>Food aversions or cravings</li><li>Heightened sense of smell</li><li>Mild cramping or bloating</li></ul><p style="margin-top:7px">These overlap with PMS. A test is the only reliable confirmation.</p>`,src:'Sources: Mayo Clinic, Cleveland Clinic, ACOG'},
-  {cat:'pregnancy-signs',b:'Early pregnancy',bc:'b-purple',t:'Implantation vs period cramping',body:`<p>Implantation: mild twinge or pulling sensation 6–12 days after ovulation, possibly with light pink/brown spotting lasting 1–2 days. Period cramps build in intensity alongside increasing flow. If unsure, wait a few days and test.</p>`,src:'Sources: Cleveland Clinic, NHS, ACOG'},
+// Combined learn content. Each item has:
+//   bucket: top-level filter ('cycle' | 'conceive' | 'lifestyle' | 'male' | 'pregnancy')
+//   b/bc:   sub-category badge (display only)
+//   t:      title (also indexed for search)
+//   body:   HTML
+//   src:    citation line
+const learnData = [
+  // ── YOUR CYCLE ────────────────────────────────
+  {bucket:'cycle',b:'Cycle basics',bc:'b-blue',t:'What is a menstrual cycle?',body:`<p>Your menstrual cycle is your body's monthly process of preparing for a possible pregnancy. Day 1 is the first day of actual bleeding. The number of days from one Day 1 to the next is your cycle length. Typical is 28 days but 21–35 is normal.</p><p>Every cycle has four phases: <strong>menstruation → follicular → ovulation → luteal.</strong></p>`,src:'Sources: ACOG, Mayo Clinic, NHS'},
+  {bucket:'cycle',b:'Cycle basics',bc:'b-blue',t:'What is cycle length and how do I find mine?',body:`<p>Count from Day 1 of one period to the day before the next period starts. <em>Example: March 1 to March 29 = 28-day cycle.</em> Track 2–3 cycles for the most accurate average.</p>`,src:'Sources: ACOG, Cleveland Clinic, NHS'},
+  {bucket:'cycle',b:'Cycle basics',bc:'b-blue',t:'What is the luteal phase — in plain language?',body:`<p>After ovulation, your body enters a waiting phase where progesterone rises to prepare the uterine lining. If no pregnancy occurs, it drops and your period begins. The luteal phase is the most consistent part of your cycle — usually 12–14 days. A phase under 10 days may make implantation harder and is worth discussing with a doctor.</p>`,src:'Sources: ACOG, Cleveland Clinic, Mayo Clinic'},
+  {bucket:'cycle',b:'Cycle basics',bc:'b-blue',t:'The four phases, simply explained',body:`<h4>Phase 1 — Menstruation</h4><p>The uterine lining sheds. Cramping is from prostaglandins. Lasts 3–7 days.</p><h4>Phase 2 — Follicular phase</h4><p>A new egg develops. Estrogen rises and rebuilds the lining. This is the variable phase — what makes cycles longer or shorter.</p><h4>Phase 3 — Ovulation</h4><p>The egg is released and is viable for 12–24 hours. Sperm can survive up to 5 days waiting for it.</p><h4>Phase 4 — Luteal phase</h4><p>Progesterone rises to prepare the uterus. If no fertilization, it drops and the cycle resets.</p>`,src:'Sources: ACOG, Mayo Clinic, Cleveland Clinic'},
+  {bucket:'cycle',b:'Menstruation',bc:'b-pink',t:'What is a normal period?',body:`<p>Typical period: 3–7 days, 2–6 tablespoons of blood. Color ranges from bright red to dark brown — all normal. Small clots under a quarter in size are common.</p>`,src:'Sources: ACOG, Mayo Clinic, NHS'},
+  {bucket:'cycle',b:'Menstruation',bc:'b-pink',t:'Common menstrual symptoms',body:`<ul><li>Cramping (lower abdomen and back)</li><li>Bloating and water retention</li><li>Breast tenderness</li><li>Mood changes, irritability, fatigue</li><li>Headaches or migraines</li><li>Nausea</li><li>Changes in bowel habits</li></ul>`,src:'Sources: Mayo Clinic, Cleveland Clinic, ACOG'},
+  {bucket:'cycle',b:'Menstruation',bc:'b-pink',t:'PMS vs PMDD',body:`<p><strong>PMS</strong> affects up to 75% of people — symptoms appear the week before your period and resolve when bleeding starts.</p><p><strong>PMDD</strong> is more severe (3–8% of people) — significant mood disruption that interferes with daily life. A recognized condition that responds to treatment.</p>`,src:'Sources: ACOG, Cleveland Clinic, NIMH'},
+  {bucket:'cycle',b:'Ovulation',bc:'b-green',t:'Signs that you may be ovulating',body:`<ul><li><strong>Cervical mucus:</strong> clear, slippery, stretchy like egg whites at peak fertility</li><li><strong>Mild one-sided pelvic pain</strong> (Mittelschmerz)</li><li><strong>Light spotting</strong></li><li><strong>Increased libido</strong></li><li><strong>Breast tenderness</strong></li><li><strong>Slight BBT rise</strong> (0.2–0.5°C) — confirms ovulation after the fact</li><li><strong>Positive OPK</strong> — detects LH surge 24–36 hours before ovulation</li></ul>`,src:'Sources: NHS, Mayo Clinic, ACOG'},
+  {bucket:'cycle',b:'Ovulation',bc:'b-green',t:'Why calendar estimates are just a starting point',body:`<p>Calendar predictions assume ovulation happens a fixed number of days before your next period. Your actual ovulation day can shift due to stress, illness, travel, or normal variation. Pairing calendar tracking with cervical mucus observation and OPK testing gives much better accuracy.</p>`,src:'Sources: Stanford & Mikolajczyk (Human Reproduction), ACOG'},
+
+  // ── TRYING TO CONCEIVE ────────────────────────
+  {bucket:'conceive',b:'OPKs',bc:'b-amber',t:'What is an OPK and how does it work?',body:`<p>An OPK is a urine test that detects the LH surge that happens 24–36 hours before ovulation. Positive = test line as dark or darker than the control line. More reliable than calendar estimates alone, especially for irregular cycles.</p>`,src:'Sources: ACOG, FDA, Cleveland Clinic, NHS'},
+  {bucket:'conceive',b:'OPKs',bc:'b-amber',t:'How to use an OPK — step by step',body:`<div class="opk-steps"><div class="opk-step"><div class="opk-num">1</div><p><strong>When to start:</strong> 28-day cycle → day 10 or 11. Longer or irregular → start day 10.</p></div><div class="opk-step"><div class="opk-num">2</div><p><strong>Time of day:</strong> 10am–8pm. Avoid first-morning urine.</p></div><div class="opk-step"><div class="opk-num">3</div><p>Reduce fluids 1–2 hours before testing.</p></div><div class="opk-step"><div class="opk-num">4</div><p><strong>Positive:</strong> test line as dark as or darker than control. Any faint line = negative.</p></div><div class="opk-step"><div class="opk-num">5</div><p><strong>After a positive:</strong> have sex that day and the next. Ovulation is 12–36 hours away.</p></div></div>`,src:'Sources: ACOG, FDA, NHS'},
+  {bucket:'conceive',b:'OPKs',bc:'b-amber',t:'OPK limitations',body:`<ul><li>A positive means a surge, not confirmed ovulation. PCOS can cause surges without egg release.</li><li>Fertility medications with hCG or LH can cause false positives.</li><li>Digital OPKs (Clearblue Advanced) also track estrogen — up to 5 days advance warning.</li><li>OPKs cannot diagnose fertility problems — see a doctor if trying 12+ months (6+ months if over 35).</li></ul>`,src:'Sources: ACOG, NHS, Cleveland Clinic'},
+  {bucket:'conceive',b:'Conception',bc:'b-green',t:'How fertilization works',body:`<p>The egg is viable 12–24 hours after ovulation. Sperm survive up to 5 days — so having sperm waiting before the egg arrives is key. Fertilization happens in the fallopian tube; the fertilized egg implants 5–7 days later.</p>`,src:'Sources: ACOG, Mayo Clinic, Wilcox et al. NEJM 1995'},
+  {bucket:'conceive',b:'Conception',bc:'b-green',t:'When to take a pregnancy test',body:`<p>Tests detect hCG, produced only after implantation. Most tests detect pregnancy reliably from the day of a missed period (14 days after ovulation). Earlier testing risks false negatives. Use first-morning urine for best results.</p>`,src:'Sources: ACOG, NHS, FDA'},
+  {bucket:'conceive',b:'Timing',bc:'b-gray',t:'Optimizing timing',body:`<p>Highest pregnancy rates: sex on ovulation day and the two days before. Every 1–2 days throughout the fertile window is ideal. No need to abstain to "save up" sperm in men with normal fertility.</p>`,src:'Sources: Wilcox et al. NEJM 1995, ACOG, NHS'},
+  {bucket:'conceive',b:'Timing',bc:'b-gray',t:'Lubricants and sperm',body:`<p>Most lubricants — including saliva — can reduce sperm motility by 60–100%. Use only fertility-friendly products (Pre-Seed, Conceive Plus, canola oil) if lubrication is needed.</p>`,src:'Sources: Fertil Steril journal, ACOG, Cleveland Clinic'},
+
+  // ── DIET & LIFESTYLE ──────────────────────────
+  {bucket:'lifestyle',b:'Diet',bc:'b-green',t:'Foods that support female fertility',body:`<ul><li><strong>Folate-rich:</strong> leafy greens, legumes, fortified grains</li><li><strong>Full-fat dairy:</strong> associated with improved ovulatory function</li><li><strong>Antioxidants:</strong> berries, citrus, dark chocolate, nuts</li><li><strong>Plant-based iron:</strong> lentils, spinach, tofu — absorb with vitamin C</li><li><strong>Complex carbohydrates:</strong> oats, quinoa, sweet potato</li><li><strong>Healthy fats:</strong> avocado, olive oil, fatty fish</li><li><strong>Limit:</strong> trans fats, caffeine over 200mg/day, alcohol</li></ul>`,src:'Sources: Chavarro et al. (Harvard), ACOG, NHS'},
+  {bucket:'lifestyle',b:'Diet',bc:'b-green',t:'The fertility diet pattern',body:`<p>Harvard Nurses' Health Study: plant protein, full-fat dairy, low glycemic carbohydrates, iron, multivitamins, omega-3s linked to lower ovulatory infertility. The Mediterranean diet also shows consistent benefits.</p>`,src:'Sources: Chavarro et al. (Obstet Gynecol), NHS, Human Reproduction'},
+  {bucket:'lifestyle',b:'Supplements',bc:'b-pink',t:'Key supplements for women',body:`<ul><li><strong>Folic acid / folate:</strong> 400–800 mcg/day. Start 1–3 months before trying.</li><li><strong>Vitamin D:</strong> 1,000–2,000 IU/day</li><li><strong>CoQ10:</strong> 200–600 mg/day — egg quality, especially over 35</li><li><strong>Inositol:</strong> evidence for PCOS</li><li><strong>Omega-3 (DHA/EPA)</strong></li><li><strong>Iron:</strong> check levels first</li><li><strong>Prenatal multivitamin:</strong> start before conception</li></ul>`,src:'Sources: ACOG, Cleveland Clinic, NHS'},
+  {bucket:'lifestyle',b:'Exercise',bc:'b-blue',t:'Exercise and weight',body:`<p>Moderate exercise (150 min/week) supports hormonal health. Both under- and overweight BMI can disrupt ovulation. Excessive high-intensity training combined with low calorie intake can suppress ovulation entirely.</p>`,src:'Sources: ACOG, Mayo Clinic, Fertility and Sterility'},
+  {bucket:'lifestyle',b:'Avoid',bc:'b-amber',t:'What to avoid',body:`<ul><li><strong>Smoking:</strong> accelerates ovarian aging, damages sperm DNA</li><li><strong>Alcohol:</strong> no safe level in conception window</li><li><strong>Caffeine:</strong> under 200 mg/day</li><li><strong>Environmental toxins:</strong> BPA, pesticides, phthalates</li><li><strong>Heat (men):</strong> hot tubs, saunas, tight underwear</li><li><strong>Cannabis:</strong> negative effects on both sperm and ovulation</li></ul>`,src:'Sources: ACOG, WHO, NHS'},
+  {bucket:'lifestyle',b:'Sleep & stress',bc:'b-purple',t:'Stress and sleep',body:`<p>Chronic stress can disrupt ovulation-regulating hormones. Disrupted sleep affects LH and FSH secretion. Aim for 7–9 consistent hours per night.</p>`,src:'Sources: Mayo Clinic, Cleveland Clinic, Human Reproduction'},
+
+  // ── MALE FERTILITY ────────────────────────────
+  {bucket:'male',b:'Male fertility',bc:'b-amber',t:'Sperm health basics',body:`<p>Sperm take 72–90 days to mature — lifestyle changes today affect quality in 2–3 months. Semen analysis evaluates count (≥16M/mL), motility (≥42%), and morphology (≥4%).</p>`,src:'Sources: WHO 6th edition, Cleveland Clinic, AUA'},
+  {bucket:'male',b:'Male fertility',bc:'b-amber',t:'Factors affecting male fertility',body:`<ul><li>Age: DNA fragmentation increases after 35–40</li><li>Varicocele: enlarged scrotal veins — most treatable cause of male infertility</li><li>Obesity, anabolic steroids, some medications</li><li>STIs and reproductive tract infections</li></ul>`,src:'Sources: AUA, Cleveland Clinic, WHO'},
+  {bucket:'male',b:'Supplements',bc:'b-pink',t:'Key supplements for men',body:`<ul><li><strong>Zinc:</strong> 11 mg/day</li><li><strong>CoQ10:</strong> 200–300 mg/day</li><li><strong>Selenium, Vitamin C + E</strong></li><li><strong>Folate + Zinc</strong> combined</li><li><strong>L-carnitine, Lycopene</strong></li></ul>`,src:'Sources: WHO, Cleveland Clinic, Andrology journal'},
+
+  // ── EARLY PREGNANCY ───────────────────────────
+  {bucket:'pregnancy',b:'Early pregnancy',bc:'b-purple',t:'Common early pregnancy signs',body:`<ul><li>Missed period</li><li>Implantation bleeding — light spotting 6–12 days after conception</li><li>Breast tenderness, darkened areolas</li><li>Nausea (2–8 weeks after conception)</li><li>Fatigue, frequent urination</li><li>Food aversions or cravings</li><li>Heightened sense of smell</li><li>Mild cramping or bloating</li></ul><p style="margin-top:7px">These overlap with PMS. A test is the only reliable confirmation.</p>`,src:'Sources: Mayo Clinic, Cleveland Clinic, ACOG'},
+  {bucket:'pregnancy',b:'Early pregnancy',bc:'b-purple',t:'Implantation vs period cramping',body:`<p>Implantation: mild twinge or pulling sensation 6–12 days after ovulation, possibly with light pink/brown spotting lasting 1–2 days. Period cramps build in intensity alongside increasing flow. If unsure, wait a few days and test.</p>`,src:'Sources: Cleveland Clinic, NHS, ACOG'},
 ];
 
-const tData = [
-  {cat:'diet',b:'Diet',bc:'b-green',t:'Foods that support female fertility',body:`<ul><li><strong>Folate-rich:</strong> leafy greens, legumes, fortified grains</li><li><strong>Full-fat dairy:</strong> associated with improved ovulatory function</li><li><strong>Antioxidants:</strong> berries, citrus, dark chocolate, nuts</li><li><strong>Plant-based iron:</strong> lentils, spinach, tofu — absorb with vitamin C</li><li><strong>Complex carbohydrates:</strong> oats, quinoa, sweet potato</li><li><strong>Healthy fats:</strong> avocado, olive oil, fatty fish</li><li><strong>Limit:</strong> trans fats, caffeine over 200mg/day, alcohol</li></ul>`,src:'Sources: Chavarro et al. (Harvard), ACOG, NHS'},
-  {cat:'diet',b:'Diet',bc:'b-green',t:'The fertility diet pattern',body:`<p>Harvard Nurses' Health Study: plant protein, full-fat dairy, low glycemic carbohydrates, iron, multivitamins, omega-3s linked to lower ovulatory infertility. The Mediterranean diet also shows consistent benefits.</p>`,src:'Sources: Chavarro et al. (Obstet Gynecol), NHS, Human Reproduction'},
-  {cat:'supplements',b:'Supplements',bc:'b-pink',t:'Key supplements for women',body:`<ul><li><strong>Folic acid / folate:</strong> 400–800 mcg/day. Start 1–3 months before trying.</li><li><strong>Vitamin D:</strong> 1,000–2,000 IU/day</li><li><strong>CoQ10:</strong> 200–600 mg/day — egg quality, especially over 35</li><li><strong>Inositol:</strong> evidence for PCOS</li><li><strong>Omega-3 (DHA/EPA)</strong></li><li><strong>Iron:</strong> check levels first</li><li><strong>Prenatal multivitamin:</strong> start before conception</li></ul>`,src:'Sources: ACOG, Cleveland Clinic, NHS'},
-  {cat:'supplements',b:'Supplements',bc:'b-pink',t:'Key supplements for men',body:`<ul><li><strong>Zinc:</strong> 11 mg/day</li><li><strong>CoQ10:</strong> 200–300 mg/day</li><li><strong>Selenium, Vitamin C + E</strong></li><li><strong>Folate + Zinc</strong> combined</li><li><strong>L-carnitine, Lycopene</strong></li></ul>`,src:'Sources: WHO, Cleveland Clinic, Andrology journal'},
-  {cat:'lifestyle',b:'Lifestyle',bc:'b-blue',t:'Exercise and weight',body:`<p>Moderate exercise (150 min/week) supports hormonal health. Both under- and overweight BMI can disrupt ovulation. Excessive high-intensity training combined with low calorie intake can suppress ovulation entirely.</p>`,src:'Sources: ACOG, Mayo Clinic, Fertility and Sterility'},
-  {cat:'lifestyle',b:'Lifestyle',bc:'b-blue',t:'What to avoid',body:`<ul><li><strong>Smoking:</strong> accelerates ovarian aging, damages sperm DNA</li><li><strong>Alcohol:</strong> no safe level in conception window</li><li><strong>Caffeine:</strong> under 200 mg/day</li><li><strong>Environmental toxins:</strong> BPA, pesticides, phthalates</li><li><strong>Heat (men):</strong> hot tubs, saunas, tight underwear</li><li><strong>Cannabis:</strong> negative effects on both sperm and ovulation</li></ul>`,src:'Sources: ACOG, WHO, NHS'},
-  {cat:'lifestyle',b:'Lifestyle',bc:'b-blue',t:'Stress and sleep',body:`<p>Chronic stress can disrupt ovulation-regulating hormones. Disrupted sleep affects LH and FSH secretion. Aim for 7–9 consistent hours per night.</p>`,src:'Sources: Mayo Clinic, Cleveland Clinic, Human Reproduction'},
-  {cat:'male',b:'Male fertility',bc:'b-amber',t:'Sperm health basics',body:`<p>Sperm take 72–90 days to mature — lifestyle changes today affect quality in 2–3 months. Semen analysis evaluates count (≥16M/mL), motility (≥42%), and morphology (≥4%).</p>`,src:'Sources: WHO 6th edition, Cleveland Clinic, AUA'},
-  {cat:'male',b:'Male fertility',bc:'b-amber',t:'Factors affecting male fertility',body:`<ul><li>Age: DNA fragmentation increases after 35–40</li><li>Varicocele: enlarged scrotal veins — most treatable cause of male infertility</li><li>Obesity, anabolic steroids, some medications</li><li>STIs and reproductive tract infections</li></ul>`,src:'Sources: AUA, Cleveland Clinic, WHO'},
-  {cat:'timing',b:'Timing',bc:'b-gray',t:'Optimizing timing',body:`<p>Highest pregnancy rates: sex on ovulation day and the two days before. Every 1–2 days throughout the fertile window is ideal. No need to abstain to "save up" sperm in men with normal fertility.</p>`,src:'Sources: Wilcox et al. NEJM 1995, ACOG, NHS'},
-  {cat:'timing',b:'Timing',bc:'b-gray',t:'Lubricants and sperm',body:`<p>Most lubricants — including saliva — can reduce sperm motility by 60–100%. Use only fertility-friendly products (Pre-Seed, Conceive Plus, canola oil) if lubrication is needed.</p>`,src:'Sources: Fertil Steril journal, ACOG, Cleveland Clinic'},
-];
+let currentBucket = 'all';
 
-function buildAcc(data) {
-  return data.map(item => `
-    <div class="accordion" data-cat="${item.cat}">
+function buildLearnAcc(data) {
+  return data.map((item, i) => `
+    <div class="accordion" data-bucket="${item.bucket}" data-idx="${i}">
       <div class="acc-hdr" onclick="toggleAcc(this)">
-        <div style="display:flex;align-items:center;gap:7px;flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">
           <span class="badge ${item.bc}">${item.b}</span>
           <span style="flex:1">${item.t}</span>
         </div>
@@ -1103,33 +1649,465 @@ function buildAcc(data) {
     </div>`).join('');
 }
 
-document.getElementById('guide-content').innerHTML = buildAcc(gData);
-document.getElementById('tips-content').innerHTML  = buildAcc(tData);
+document.getElementById('learn-content').innerHTML = buildLearnAcc(learnData);
+filterLearn();
 
 function toggleAcc(el) {
   el.nextElementSibling.classList.toggle('open');
   el.querySelector('.chevron').classList.toggle('open');
 }
-function fGuide(cat, btn) {
-  document.querySelectorAll('#guide .cat-tab').forEach(t => t.classList.remove('active'));
+
+function setBucket(bucket, btn) {
+  currentBucket = bucket;
+  document.querySelectorAll('#learn-tabs .cat-tab').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
-  document.querySelectorAll('#guide-content .accordion').forEach(a => {
-    a.style.display = (cat === 'all' || a.dataset.cat === cat) ? 'block' : 'none';
-  });
+  filterLearn();
 }
-function fTips(cat, btn) {
-  document.querySelectorAll('#tips .cat-tab').forEach(t => t.classList.remove('active'));
-  btn.classList.add('active');
-  document.querySelectorAll('#tips-content .accordion').forEach(a => {
-    a.style.display = (cat === 'all' || a.dataset.cat === cat) ? 'block' : 'none';
+
+function filterLearn() {
+  const q = (document.getElementById('learn-search').value || '').trim().toLowerCase();
+  let shown = 0;
+  document.querySelectorAll('#learn-content .accordion').forEach(a => {
+    const idx = parseInt(a.dataset.idx, 10);
+    const item = learnData[idx];
+    const bucketOk = currentBucket === 'all' || a.dataset.bucket === currentBucket;
+    const haystack = (item.t + ' ' + item.b + ' ' + item.body).toLowerCase();
+    const searchOk = !q || haystack.indexOf(q) !== -1;
+    const ok = bucketOk && searchOk;
+    a.style.display = ok ? '' : 'none';
+    if (ok) shown++;
+  });
+  const countEl = document.getElementById('learn-count');
+  const emptyEl = document.getElementById('learn-empty');
+  countEl.textContent = shown + ' topic' + (shown === 1 ? '' : 's');
+  emptyEl.style.display = shown === 0 ? 'block' : 'none';
+}
+
+// ══════════════════════════════════════════════
+//  CSV EXPORT / IMPORT
+// ══════════════════════════════════════════════
+function csvEscape(v) {
+  if (v == null) return '';
+  const s = String(v);
+  if (/[",\n\r]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+  return s;
+}
+
+function parseCsv(text) {
+  const rows = [];
+  let cur = [], field = '', inQ = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (inQ) {
+      if (ch === '"') {
+        if (text[i+1] === '"') { field += '"'; i++; }
+        else inQ = false;
+      } else field += ch;
+    } else {
+      if (ch === '"') inQ = true;
+      else if (ch === ',')  { cur.push(field); field = ''; }
+      else if (ch === '\n') { cur.push(field); rows.push(cur); cur = []; field = ''; }
+      else if (ch !== '\r') field += ch;
+    }
+  }
+  if (field.length || cur.length) { cur.push(field); rows.push(cur); }
+  return rows;
+}
+
+function exportCSV() {
+  const lines = [];
+  lines.push('# Azalea Fertility Tracker — Export');
+  lines.push('# version,1');
+  lines.push('# exported,' + new Date().toISOString());
+  lines.push('');
+
+  lines.push('[CYCLE_DAYS]');
+  lines.push('date,type');
+  Object.keys(loggedDays).sort().forEach(k => {
+    lines.push(csvEscape(k) + ',' + csvEscape(loggedDays[k]));
+  });
+  lines.push('');
+
+  lines.push('[DAILY_LOGS]');
+  lines.push('date,mucus,bbt,energy,notes');
+  Object.keys(dailyLogs).sort().forEach(k => {
+    const d = dailyLogs[k] || {};
+    lines.push([k, d.mucus, d.bbt, d.energy, d.notes].map(csvEscape).join(','));
+  });
+  lines.push('');
+
+  lines.push('[SKIPPED_CYCLES]');
+  lines.push('cycle_start,reason');
+  Object.keys(skippedCycles).sort().forEach(k => {
+    lines.push(csvEscape(k) + ',' + csvEscape(skippedCycles[k]));
+  });
+  lines.push('');
+
+  lines.push('[INPUTS]');
+  lines.push('key,value');
+  ['lastPeriod','cycleLen','periodLen','lutealLen'].forEach(id => {
+    lines.push(id + ',' + csvEscape(document.getElementById(id).value));
+  });
+  lines.push('');
+
+  lines.push('[NOTIFICATIONS]');
+  lines.push('key,value');
+  Object.keys(notifPrefs).forEach(k => {
+    lines.push(k + ',' + csvEscape(notifPrefs[k]));
+  });
+
+  const csv = lines.join('\n');
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'azalea-cycle-data-' + dKey(new Date()) + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 200);
+}
+
+function onImportFile(ev) {
+  const file = ev.target.files && ev.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try { importCSV(reader.result); }
+    catch (e) { alert('Import failed: ' + e.message); }
+  };
+  reader.onerror = () => alert('Could not read file.');
+  reader.readAsText(file);
+  ev.target.value = '';
+}
+
+function importCSV(text) {
+  const rows = parseCsv(text);
+  const parsed = { cycleDays: {}, dailyLogs: {}, skipped: {}, inputs: {}, notif: {} };
+  let section = null, headerRead = false;
+
+  for (const row of rows) {
+    const first = (row[0] || '').trim();
+    if (row.length === 0 || (row.length === 1 && first === '')) { headerRead = false; continue; }
+    if (first.startsWith('#')) continue;
+    if (first.startsWith('[') && first.endsWith(']')) {
+      section = first.slice(1, -1).toUpperCase();
+      headerRead = false;
+      continue;
+    }
+    if (!headerRead) { headerRead = true; continue; }
+
+    if (section === 'CYCLE_DAYS' && row[0] && (row[1] === 'period' || row[1] === 'ovulation')) {
+      parsed.cycleDays[row[0]] = row[1];
+    } else if (section === 'DAILY_LOGS' && row[0]) {
+      const e = {};
+      if (row[1]) e.mucus  = row[1];
+      if (row[2]) e.bbt    = row[2];
+      if (row[3]) e.energy = row[3];
+      if (row[4]) e.notes  = row[4];
+      if (Object.keys(e).length) parsed.dailyLogs[row[0]] = e;
+    } else if (section === 'SKIPPED_CYCLES' && row[0] && row[1]) {
+      parsed.skipped[row[0]] = row[1];
+    } else if (section === 'INPUTS' && row[0]) {
+      parsed.inputs[row[0]] = row[1] || '';
+    } else if (section === 'NOTIFICATIONS' && row[0]) {
+      parsed.notif[row[0]] = row[1] || '';
+    }
+  }
+
+  const summary =
+    'Import will merge into your existing data:\n' +
+    '• ' + Object.keys(parsed.cycleDays).length + ' cycle days\n' +
+    '• ' + Object.keys(parsed.dailyLogs).length + ' daily logs\n' +
+    '• ' + Object.keys(parsed.skipped).length + ' skipped cycles\n' +
+    '• inputs and notification preferences\n\n' +
+    'Existing entries with the same date will be overwritten. Continue?';
+  if (!confirm(summary)) return;
+
+  Object.assign(loggedDays,    parsed.cycleDays);
+  Object.assign(dailyLogs,     parsed.dailyLogs);
+  Object.assign(skippedCycles, parsed.skipped);
+
+  if (parsed.inputs.lastPeriod) document.getElementById('lastPeriod').value = parsed.inputs.lastPeriod;
+  if (parsed.inputs.cycleLen)   document.getElementById('cycleLen').value   = parsed.inputs.cycleLen;
+  if (parsed.inputs.periodLen)  document.getElementById('periodLen').value  = parsed.inputs.periodLen;
+  if (parsed.inputs.lutealLen)  document.getElementById('lutealLen').value  = parsed.inputs.lutealLen;
+
+  Object.keys(parsed.notif).forEach(k => {
+    if (!(k in notifPrefs)) return;
+    const v = parsed.notif[k];
+    if (typeof notifPrefs[k] === 'boolean') notifPrefs[k] = (v === 'true');
+    else notifPrefs[k] = v;
+  });
+
+  saveState();
+  recalcFromInputs();
+  renderCalendar();
+  renderHistory();
+  renderNotifUI();
+  if (hasCalculated) updateBanner();
+  if (notifPrefs.enabled && hasCalculated) scheduleAllNotifications();
+  alert('Import complete.');
+}
+
+// ══════════════════════════════════════════════
+//  NOTIFICATIONS
+// ══════════════════════════════════════════════
+let pageTimeoutHandles = [];
+
+function notifSupported()        { return 'Notification' in window && 'serviceWorker' in navigator; }
+function notifTriggerSupported() { return 'showTrigger' in Notification.prototype && 'TimestampTrigger' in window; }
+
+async function requestNotifPerm() {
+  if (!notifSupported()) return false;
+  let perm = Notification.permission;
+  if (perm === 'default') {
+    try { perm = await Notification.requestPermission(); } catch (e) { return false; }
+  }
+  return perm === 'granted';
+}
+
+async function toggleMainNotif() {
+  if (!notifPrefs.enabled) {
+    if (!notifSupported()) {
+      alert('Notifications are not supported in this browser.\n\nOn iPhone, you must install the app via Safari → Share → "Add to Home Screen" and open it from the home screen icon (iOS 16.4+).');
+      return;
+    }
+    const ok = await requestNotifPerm();
+    if (!ok) {
+      alert('Notification permission was not granted. Enable notifications for this site in your browser or device settings, then try again.');
+      renderNotifUI();
+      return;
+    }
+    notifPrefs.enabled = true;
+    saveState();
+    renderNotifUI();
+    if (hasCalculated) scheduleAllNotifications();
+  } else {
+    notifPrefs.enabled = false;
+    await cancelAllNotifications();
+    saveState();
+    renderNotifUI();
+  }
+}
+
+function toggleNotifPref(key, btn) {
+  notifPrefs[key] = !notifPrefs[key];
+  btn.classList.toggle('on', notifPrefs[key]);
+  saveState();
+  if (notifPrefs.enabled && hasCalculated) scheduleAllNotifications();
+}
+
+function setNotifTime(key, val) {
+  notifPrefs[key] = val;
+  saveState();
+  if (notifPrefs.enabled && hasCalculated) scheduleAllNotifications();
+}
+
+function renderNotifUI() {
+  document.getElementById('tog-notif-main').classList.toggle('on', notifPrefs.enabled);
+  document.getElementById('notif-options').style.display = notifPrefs.enabled ? 'block' : 'none';
+
+  ['fertileStart','ovulation','testDate','periodSoon','dailyLog','bbt'].forEach(k => {
+    const el = document.getElementById('tog-' + k);
+    if (el) el.classList.toggle('on', !!notifPrefs[k]);
+  });
+  document.getElementById('dailyLogTime').value = notifPrefs.dailyLogTime || '20:00';
+  document.getElementById('bbtTime').value      = notifPrefs.bbtTime || '07:00';
+
+  const stat = document.getElementById('notif-status');
+  if (!notifPrefs.enabled) { stat.style.display = 'none'; return; }
+  stat.style.display = 'block';
+  if (!notifSupported()) {
+    stat.className = 'notif-status warn';
+    stat.textContent = 'Notifications are not supported in this browser.';
+  } else if (Notification.permission !== 'granted') {
+    stat.className = 'notif-status warn';
+    stat.textContent = 'Permission missing. Allow notifications for this site in your browser settings.';
+  } else if (!notifTriggerSupported()) {
+    stat.className = 'notif-status warn';
+    stat.innerHTML = 'Your browser only delivers notifications while the app is open. <strong>Install the app to your home screen</strong> and open it daily for best results.';
+  } else {
+    stat.className = 'notif-status ok';
+    stat.innerHTML = '<i class="ti ti-check"></i> Scheduled reminders will fire even when the app is closed.';
+  }
+}
+
+async function cancelAllNotifications() {
+  pageTimeoutHandles.forEach(h => clearTimeout(h));
+  pageTimeoutHandles = [];
+  if (!('serviceWorker' in navigator)) return;
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const ns = await reg.getNotifications({ includeTriggered: true });
+    ns.forEach(n => n.close());
+  } catch (e) {}
+}
+
+async function scheduleAllNotifications() {
+  if (!notifPrefs.enabled || !hasCalculated) return;
+  if (!notifSupported() || Notification.permission !== 'granted') return;
+  await cancelAllNotifications();
+
+  const c = getCycleData();
+  const at = (date, time) => {
+    const [h, m] = (time || '08:00').split(':').map(Number);
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate(), h, m, 0, 0).getTime();
+  };
+
+  const items = [];
+  if (notifPrefs.fertileStart)
+    items.push({ tag: 'fertile-start', t: at(c.fwStart, '08:00'),
+      title: 'Your fertile window is open',
+      body: 'Today through ovulation are your best days to try.' });
+  if (notifPrefs.ovulation)
+    items.push({ tag: 'ovulation', t: at(c.ov, '08:00'),
+      title: 'Estimated ovulation day',
+      body: 'Highest fertility today. Consider an OPK to confirm.' });
+  if (notifPrefs.testDate)
+    items.push({ tag: 'test-date', t: at(c.testDate, '07:00'),
+      title: 'You can take a pregnancy test',
+      body: 'hCG should be detectable now. First-morning urine is most accurate.' });
+  if (notifPrefs.periodSoon)
+    items.push({ tag: 'period-soon', t: at(addDays(c.nextPeriod, -1), '08:00'),
+      title: 'Period expected tomorrow',
+      body: 'Your next period is estimated for ' + fmtDate(c.nextPeriod) + '.' });
+
+  // Daily reminders — schedule next 7 days
+  if (notifPrefs.dailyLog) {
+    for (let i = 0; i < 7; i++) {
+      const d = addDays(today, i);
+      const ts = at(d, notifPrefs.dailyLogTime);
+      if (ts > Date.now()) items.push({ tag: 'daily-log-' + dKey(d), t: ts,
+        title: 'Daily log reminder',
+        body: 'Take a moment to log today\'s observations.' });
+    }
+  }
+  if (notifPrefs.bbt) {
+    for (let i = 0; i < 7; i++) {
+      const d = addDays(today, i);
+      const ts = at(d, notifPrefs.bbtTime);
+      if (ts > Date.now()) items.push({ tag: 'bbt-' + dKey(d), t: ts,
+        title: 'BBT measurement reminder',
+        body: 'Take your basal body temperature before getting out of bed.' });
+    }
+  }
+
+  for (const item of items) {
+    if (item.t <= Date.now()) continue;
+    await scheduleOne(item);
+  }
+}
+
+async function scheduleOne({ tag, title, body, t }) {
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    if (notifTriggerSupported()) {
+      await reg.showNotification(title, {
+        tag, body, icon: 'icon.svg', badge: 'icon.svg',
+        showTrigger: new TimestampTrigger(t)
+      });
+    } else {
+      const delay = Math.max(0, t - Date.now());
+      if (delay > 2147483000) return; // > ~24.8 days — setTimeout cap
+      const h = setTimeout(() => {
+        reg.showNotification(title, { tag, body, icon: 'icon.svg', badge: 'icon.svg' });
+      }, delay);
+      pageTimeoutHandles.push(h);
+    }
+  } catch (e) { console.warn('scheduleOne failed', e); }
+}
+
+// ══════════════════════════════════════════════
+//  PWA INSTALL + SERVICE WORKER
+// ══════════════════════════════════════════════
+let deferredInstallPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  refreshInstallUI();
+});
+window.addEventListener('appinstalled', () => {
+  deferredInstallPrompt = null;
+  refreshInstallUI();
+});
+
+function isStandalone() {
+  return window.matchMedia('(display-mode: standalone)').matches
+      || window.navigator.standalone === true;
+}
+
+function refreshInstallUI() {
+  const status = document.getElementById('install-status');
+  const row    = document.getElementById('install-btn-row');
+  if (!status) return;
+  if (isStandalone()) {
+    status.innerHTML = '<i class="ti ti-check"></i> The app is installed on this device.';
+    row.style.display = 'none';
+  } else if (deferredInstallPrompt) {
+    status.textContent = 'Install the app to your home screen for offline access and easier notifications.';
+    row.style.display = '';
+  } else {
+    status.innerHTML = 'On <strong>Android Chrome</strong>: tap the menu (⋮) → <em>Install app</em> or <em>Add to Home screen</em>.<br>On <strong>iPhone Safari</strong>: tap Share → <em>Add to Home Screen</em>. Notifications work after install on iOS 16.4+.';
+    row.style.display = 'none';
+  }
+}
+
+async function triggerInstall() {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  try { await deferredInstallPrompt.userChoice; } catch (e) {}
+  deferredInstallPrompt = null;
+  refreshInstallUI();
+}
+
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js')
+      .catch(err => console.warn('Service worker registration failed:', err));
   });
 }
 
 // ══════════════════════════════════════════════
 //  INIT RENDER
 // ══════════════════════════════════════════════
+applyTheme(appPrefs.theme);
+renderAppPrefsUI();
 renderCalendar();
 renderHistory();
+renderNotifUI();
+refreshInstallUI();
+restoreTodayDailyLog();
+
+// If we already have a saved cycle, restore the calculated state so the
+// banner and predictions show immediately on reopening the app.
+if (hasCalculated) {
+  // Trigger a recalc + UI refresh without flagging it as a brand new calc.
+  const c = getCycleData();
+  document.getElementById('r-ov').textContent   = fmtDate(c.ov);
+  document.getElementById('r-fw').textContent   = fmtDate(c.fwStart);
+  document.getElementById('r-test').textContent = fmtDate(c.testDate);
+  document.getElementById('phase-timeline').innerHTML = `
+    <div class="phase-bar ph-period"><i class="ti ti-droplet"></i><div><strong>Menstruation</strong> — ${fmtDate(c.lp)} to ${fmtDate(addDays(c.lp,c.pl-1))}</div></div>
+    <div class="phase-bar ph-follicular"><i class="ti ti-arrow-up"></i><div><strong>Follicular phase</strong> — ${fmtDate(addDays(c.lp,c.pl))} to ${fmtDate(addDays(c.fwStart,-1))}</div></div>
+    <div class="phase-bar ph-fertile"><i class="ti ti-star"></i><div><strong>Fertile window</strong> — ${fmtDate(c.fwStart)} to ${fmtDate(c.fwEnd)} <em>(best days to try)</em></div></div>
+    <div class="phase-bar ph-ovulation"><i class="ti ti-circle-dot"></i><div><strong>Ovulation day</strong> — ${fmtDate(c.ov)}</div></div>
+    <div class="phase-bar ph-luteal"><i class="ti ti-moon"></i><div><strong>Luteal phase</strong> — ${fmtDate(addDays(c.ov,1))} to ${fmtDate(addDays(c.nextPeriod,-1))}</div></div>
+    <div class="phase-bar ph-test"><i class="ti ti-test-pipe"></i><div><strong>Earliest pregnancy test</strong> — ${fmtDate(c.testDate)}</div></div>
+  `;
+  document.getElementById('results').style.display = 'block';
+  recalcFromInputs();
+  updateBanner();
+  if (Object.keys(skippedCycles).some(k => k === dKey(new Date(document.getElementById('lastPeriod').value)))) {
+    document.getElementById('skipped-indicator').style.display = 'block';
+  }
+  if (notifPrefs.enabled) scheduleAllNotifications();
+}
+
+// Activate the user's preferred landing tab (last)
+if (appPrefs.landingTab && appPrefs.landingTab !== 'tracker') {
+  showSec(appPrefs.landingTab);
+}
 </script>
 </body>
 </html>
