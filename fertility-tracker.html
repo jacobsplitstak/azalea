@@ -566,6 +566,8 @@ textarea { resize: vertical; min-height: 70px; }
 .field-help { font-size: 12px; color: var(--color-text-secondary); margin-top: 4px; line-height: 1.5; display: none; }
 .field-help.visible { display: block; }
 .field-row { margin-bottom: 11px; }
+.reset-link { background: none; border: none; color: var(--accent); font-size: 11px; font-weight: 500; cursor: pointer; padding: 4px 0 0; text-decoration: underline; text-underline-offset: 2px; font-family: var(--font-sans); display: inline-block; }
+.reset-link:hover { color: var(--accent-dark); }
 
 /* ── OPK STEPS ── */
 .opk-step { display: flex; gap: 9px; margin-bottom: 8px; align-items: flex-start; }
@@ -807,12 +809,13 @@ input[type=time] { width: auto; padding: 6px 10px; border: 0.5px solid var(--col
           <div class="grid2" style="margin-bottom:10px">
             <div class="field-row">
               <label>First day of last period <button class="help-link" onclick="toggleHelp('h-lp')">?</button></label>
-              <input type="date" id="lastPeriod" onchange="onInputChange()">
+              <input type="date" id="lastPeriod" onchange="onInputChange('lastPeriod')">
               <div id="h-lp" class="field-help">Day 1 = first day of actual bleeding, not spotting.</div>
             </div>
             <div class="field-row">
               <label>Cycle length (days) <button class="help-link" onclick="toggleHelp('h-cl')">?</button></label>
-              <input type="number" id="cycleLen" value="28" min="21" max="40" onchange="onInputChange()">
+              <input type="number" id="cycleLen" value="28" min="21" max="40" onchange="onInputChange('cycleLen')">
+              <button class="reset-link" id="reset-cycleLen" style="display:none" onclick="resetOverride('cycleLen')">↺ Use logged average</button>
               <div id="h-cl" class="field-help">Days from Day 1 of one period to the day before the next. Updates automatically when you log periods on the calendar.</div>
             </div>
           </div>
@@ -820,11 +823,13 @@ input[type=time] { width: auto; padding: 6px 10px; border: 0.5px solid var(--col
           <div class="grid2" style="margin-bottom:14px">
             <div class="field-row">
               <label>Period length (days)</label>
-              <input type="number" id="periodLen" value="5" min="2" max="10" onchange="onInputChange()">
+              <input type="number" id="periodLen" value="5" min="2" max="10" onchange="onInputChange('periodLen')">
+              <button class="reset-link" id="reset-periodLen" style="display:none" onclick="resetOverride('periodLen')">↺ Use logged average</button>
             </div>
             <div class="field-row">
               <label>Luteal phase (days) <button class="help-link" onclick="toggleHelp('h-ll')">?</button></label>
-              <input type="number" id="lutealLen" value="14" min="10" max="16" onchange="onInputChange()">
+              <input type="number" id="lutealLen" value="14" min="10" max="20" onchange="onInputChange('lutealLen')">
+              <button class="reset-link" id="reset-lutealLen" style="display:none" onclick="resetOverride('lutealLen')">↺ Use logged average</button>
               <div id="h-ll" class="field-help">Time between ovulation and your next period. Usually 12–14 days. Updates when you log ovulation on the calendar.</div>
             </div>
           </div>
@@ -1146,7 +1151,11 @@ let notifPrefs = {
 
 let appPrefs = {
   theme:       'auto',     // 'auto' | 'light' | 'dark' | 'lavender' | 'sage'
-  landingTab:  'tracker'   // 'tracker' | 'calendar' | 'history' | 'learn' | 'settings'
+  landingTab:  'tracker',  // 'tracker' | 'cycle' | 'calendar' | 'history' | 'learn' | 'settings'
+  // Per-input override flags. When true, the user has manually edited
+  // the field and we should NOT replace their value with the logged
+  // average. Cleared by clicking the "↺ Use logged avg" link.
+  overrides:   { cycleLen: false, periodLen: false, lutealLen: false }
 };
 
 function loadState() {
@@ -1170,7 +1179,12 @@ function loadState() {
     });
   }
   if (p.notifPrefs)    Object.assign(notifPrefs, p.notifPrefs);
-  if (p.appPrefs)      Object.assign(appPrefs, p.appPrefs);
+  if (p.appPrefs) {
+    Object.assign(appPrefs, p.appPrefs);
+    // Re-merge overrides explicitly so a partial saved state doesn't
+    // drop the default keys.
+    appPrefs.overrides = Object.assign({ cycleLen: false, periodLen: false, lutealLen: false }, p.appPrefs.overrides || {});
+  }
   if (p.hasCalculated) hasCalculated = true;
   if (p.inputs) {
     // Validate / clamp on load so a tampered or older corrupted state
@@ -1443,8 +1457,24 @@ function deriveStats() {
   let src = { cycle: 'default', period: 'default', luteal: 'default' };
 
   const validRuns = runs.filter(r => !skippedCycles[r[0]]);
-  if (validRuns.length > 0) {
-    const avg = Math.round(validRuns.reduce((s,r) => s + r.length, 0) / validRuns.length);
+
+  // A run is "in progress" if the most recent logged day is today or
+  // yesterday — the user may add more days. Don't fold in-progress runs
+  // into the period-length average, otherwise logging just day 1 of a
+  // new period (a 1-day run) would shrink periodLen to 2 before they've
+  // had a chance to log days 2+.
+  const todayD = getToday();
+  const isInProgress = r => {
+    if (!r.length) return false;
+    const last = parseKey(r[r.length - 1]);
+    if (!last) return false;
+    const gap = daysBetween(last, todayD);
+    return gap >= 0 && gap <= 1;
+  };
+  const completedRuns = validRuns.filter(r => !isInProgress(r));
+
+  if (completedRuns.length > 0) {
+    const avg = Math.round(completedRuns.reduce((s,r) => s + r.length, 0) / completedRuns.length);
     periodLen = Math.max(2, Math.min(10, avg));
     src.period = 'logged';
   }
@@ -1477,12 +1507,31 @@ function deriveStats() {
 
 function recalcFromInputs() {
   const s = deriveStats();
-  if (s.src.cycle !== 'default') { document.getElementById('cycleLen').value = s.cycleLen; setStat('s-cycle', s.cycleLen, s.src.cycle); }
-  else setStat('s-cycle', document.getElementById('cycleLen').value, 'manual');
-  if (s.src.period !== 'default') { document.getElementById('periodLen').value = s.periodLen; setStat('s-period', s.periodLen, s.src.period); }
-  else setStat('s-period', document.getElementById('periodLen').value, 'manual');
-  if (s.src.luteal !== 'default') { document.getElementById('lutealLen').value = s.lutealLen; setStat('s-luteal', s.lutealLen, s.src.luteal); }
-  else setStat('s-luteal', document.getElementById('lutealLen').value, 'manual');
+  const ov = appPrefs.overrides || {};
+  // For each field: if the user has overridden it, keep their typed value
+  // and show "manual"; otherwise auto-fill with the derived value. The
+  // "↺ Use logged average" link shows when override is set AND a derived
+  // value is available so the user can revert with one click.
+  const apply = (inputId, statId, derivedVal, derivedSrc) => {
+    const inputEl = document.getElementById(inputId);
+    const resetEl = document.getElementById('reset-' + inputId);
+    const derivedAvail = derivedSrc !== 'default';
+    if (ov[inputId]) {
+      // Manual override — keep the user's value.
+      setStat(statId, inputEl.value, derivedAvail ? 'manual · logged avg ' + derivedVal : 'manual');
+      if (resetEl) resetEl.style.display = derivedAvail ? '' : 'none';
+    } else if (derivedAvail) {
+      inputEl.value = derivedVal;
+      setStat(statId, derivedVal, derivedSrc);
+      if (resetEl) resetEl.style.display = 'none';
+    } else {
+      setStat(statId, inputEl.value, 'default');
+      if (resetEl) resetEl.style.display = 'none';
+    }
+  };
+  apply('cycleLen',  's-cycle',  s.cycleLen,  s.src.cycle);
+  apply('periodLen', 's-period', s.periodLen, s.src.period);
+  apply('lutealLen', 's-luteal', s.lutealLen, s.src.luteal);
 }
 
 function setStat(id, val, src) {
@@ -1496,7 +1545,24 @@ function setStat(id, val, src) {
   document.getElementById(id + '-src').textContent = src;
 }
 
-function onInputChange() { recalcFromInputs(); renderCalendar(); saveState(); }
+function onInputChange(field) {
+  // Mark this field as user-overridden so derived data won't overwrite it.
+  // lastPeriod isn't in overrides (it's always user-driven) and is left alone.
+  if (field && appPrefs.overrides && field in appPrefs.overrides) {
+    appPrefs.overrides[field] = true;
+  }
+  recalcFromInputs();
+  renderCalendar();
+  saveState();
+}
+function resetOverride(field) {
+  if (!appPrefs.overrides || !(field in appPrefs.overrides)) return;
+  appPrefs.overrides[field] = false;
+  recalcFromInputs();
+  renderCalendar();
+  saveState();
+  if (hasCalculated) updateBanner();
+}
 
 // ══════════════════════════════════════════════
 //  CYCLE DATA
@@ -1549,7 +1615,7 @@ function updateBanner() {
 
   if (todayTs >= ts0(lp) && todayTs <= ts0(addDays(lp, c.pl-1))) {
     phase = 'period'; icon.textContent = '🩸';
-    title.textContent = 'You are currently in your period.';
+    title.textContent = 'You are currently on your period.';
     sub.textContent = 'Your fertile window opens in ' + dFwStart + ' day' + (dFwStart===1?'':'s') + ' (' + fmtDate(fwStart) + ').';
   } else if (todayTs >= ts0(fwStart) && todayTs < ts0(ov)) {
     phase = 'fertile'; icon.textContent = '⭐';
